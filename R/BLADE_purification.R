@@ -22,7 +22,7 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   ## init Mu en omega from list
   Mu = as.matrix(signature$mu)
   Omega = as.matrix(signature$omega)
-  bulk = as.matrix(assay(pseudobulk,'normalized_counts'))
+  bulk = as.matrix(assay(bulk,'normalized_counts'))
 
   result = Purify_AllGenes(BLADE_obj, Mu, Omega,
                                bulk, cores)
@@ -31,7 +31,9 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   Statescope@BLADE_output = result
 
   ## Gather ct specific gep
-  ct_specific_gep = SimpleList()
+  ## TODO:
+  ## -Find solution for this with SimpleList or SummarizedExperiment
+  ct_specific_gep = list()
   i = 0
   for (ct in colnames(signature$mu)){
     i = i+1
@@ -49,7 +51,7 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
     rownames(temp_omega_abs_gep_df) = rownames(bulk)
 
     ## add to ct_specific_gp list
-    ct_specific_gep[ct] =  SummarizedExperiment(assays = list(
+    ct_specific_gep[ct] =  SummarizedExperiment(assays = SimpleList(
       weighted_gep = temp_omega_abs_gep_df))
   }
 

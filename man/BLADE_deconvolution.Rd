@@ -40,7 +40,7 @@ expression and mean-variance corrected variance per cell type}
 \item{Nrepfinal}{hyperparameter ....}
 }
 \value{
-BLADE_result S4 object
+Statescope S4 object
 }
 \description{
 \code{BLADE_deconvolution.R} Runs BLADE to estimate cell fractions from bulk mRNA

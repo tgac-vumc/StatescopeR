@@ -5,6 +5,7 @@
 #' @slot BLADE_output list with all BLADE output
 #' @slot fractions predicted fraction per sample per cell type
 #' @slot ct_specific_gep predicted cell type-specific gene expression profiles
+#' @slot states cell type-specific states based on ct_specific_gep
 #' per sample
 #' @import S4Vectors
 #' @export
@@ -12,10 +13,12 @@ setClass("Statescope",
          slots = c(
            BLADE_output = "list",
            fractions = 'DataFrame',
-           ct_specific_gep = 'SimpleList'),
+           ct_specific_gep = 'list',
+           states = 'SimpleList'),
          prototype = list(
            BLADE_output = list(NA),
            fractions = DataFrame(NA),
-           ct_specific_gep = SimpleList(NA)
+           ct_specific_gep = list(NA),
+           states = SimpleList(NA)
          )
          )

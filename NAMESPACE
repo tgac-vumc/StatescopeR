@@ -2,11 +2,12 @@
 
 export(BLADE_deconvolution)
 export(BLADE_purification)
+export(Statescope)
 export(create_signature)
 export(gather_true_fractions)
 export(generate_pseudobulk)
 export(normalize_bulkRNAseq)
 export(normalize_scRNAseq)
 export(select_genes)
-exportClasses(BLADE_result)
+exportClasses(Statescope)
 import(S4Vectors)

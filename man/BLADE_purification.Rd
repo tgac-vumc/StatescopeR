@@ -4,10 +4,10 @@
 \alias{BLADE_purification}
 \title{Run BLADE purification}
 \usage{
-BLADE_purification(BLADE_result, signature, bulk, cores = 1L)
+BLADE_purification(Statescope, signature, bulk, cores = 1L)
 }
 \arguments{
-\item{BLADE_result}{BLADE_result obj from BLADE_deconvolution}
+\item{Statescope}{Statescope obj from BLADE_deconvolution}
 
 \item{signature}{SimpleList with mu and sigma, respectively mean gene
 expression and mean-variance corrected variance per cell type}
@@ -17,12 +17,12 @@ expression and mean-variance corrected variance per cell type}
 \item{cores}{number of cores to use for paralellization}
 }
 \value{
-updated BLADE_result S4 object with ct_specific_gep added
+updated Statescopet S4 object with ct_specific_gep added
 }
 \description{
 \code{BLADE_purification.R} Runs BLADE to estimate cell type-specific
 gene expression profiles
 }
 \examples{
-ct_specific_gep = BLADE_purification(BLADE_result, signature bulk, 1L)
+ct_specific_gep = BLADE_purification(Statescope, signature bulk, 1L)
 }

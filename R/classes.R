@@ -1,6 +1,6 @@
 ## Define classes for use in package
 
-#' S4 class to store BLADE results
+#' S4 class to store Statescope results
 #
 #' @slot BLADE_output list with all BLADE output
 #' @slot fractions predicted fraction per sample per cell type
@@ -8,7 +8,7 @@
 #' per sample
 #' @import S4Vectors
 #' @export
-setClass("BLADE_result",
+setClass("Statescope",
          slots = c(
            BLADE_output = "list",
            fractions = 'DataFrame',

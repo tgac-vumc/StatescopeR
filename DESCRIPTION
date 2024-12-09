@@ -1,4 +1,4 @@
-Package: OncoBLADE
+Package: StatescopeR
 Type: Package
 Title: Tumor-informed RNA Deconvolution
 Version: 0.1.0

@@ -15,7 +15,7 @@
 #' @param Nrep hyperparameter
 #' @param Nrepfinal hyperparameter ....
 #'
-#' @return BLADE_result S4 object
+#' @return Statescope S4 object
 #' @export
 #'
 #' @examples
@@ -42,10 +42,10 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
                         row.names = colnames(signature$mu))
   colnames(fractions) = sample_names
 
-  ## Save S4 object with BLADE_results and fractions slots
-  BLADE_result = new('BLADE_result', BLADE_output = result, fractions = fractions)
+  ## Save S4 object with Statescope and fractions slots
+  Statescope = new('Statescope', BLADE_output = result, fractions = fractions)
 
-  return(BLADE_result)
+  return(Statescope)
 
 }
 

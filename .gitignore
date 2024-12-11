@@ -5,3 +5,6 @@
 all_objects.RData
 Example.R
 OncoBLADE.BiocCheck
+Python/_pycache_/
+*.rds
+*.csv

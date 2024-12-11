@@ -18,27 +18,22 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 0.1  Import Libraries
 #-------------------------------------------------------------------------------
-import sys
-from OncoBLADE import Framework_Iterative
 import numpy as np
-import pandas as pd
-import random
-from scipy.stats import zscore
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import silhouette_score
-import random
-from scipy.cluster.hierarchy import average, cophenet
-from scipy.spatial.distance import  pdist
-from joblib import Parallel, delayed
+import scipy.sparse
 import logging
-import dist
+import random
+import logging.config
+from numpy.linalg import eigh
+#from scipy.misc import factorial
 
 #-------------------------------------------------------------------------------
-# 1.1 Define functions for actual cNMF
+# 1 Define functions for actual cNMF
 #------------------------------------------------------------------------------- 
-## From: https://github.com/cthurau/pymf
+## Adjusted from: https://github.com/cthurau/pymf
 
+#-------------------------------------------------------------------------------
+# 1.1 base.py
+#------------------------------------------------------------------------------- 
 class PyMFBase():
     """
     PyMF Base Class. Does nothing useful apart from poviding some basic methods.
@@ -217,7 +212,9 @@ class PyMFBase():
                     self.ferr = self.ferr[:i]
                     break
                 
-
+#-------------------------------------------------------------------------------
+# 1.2 kmeans.py
+#-------------------------------------------------------------------------------
 class Kmeans(PyMFBase):
     """      
     Kmeans(data, num_bases=4)
@@ -276,7 +273,7 @@ class Kmeans(PyMFBase):
         
     def _update_h(self):                    
         # and assign samples to the best matching centers
-        self.assigned = dist.vq(self.W, self.data)
+        self.assigned = vq(self.W, self.data)
         self.H = np.zeros(self.H.shape)
         self.H[self.assigned, range(self._num_samples)] = 1.0
                 
@@ -288,7 +285,10 @@ class Kmeans(PyMFBase):
             n = np.sum(idx)
             if n > 0:
                 self.W[:,i] = np.sum(self.data[:, idx], axis=1)/n
-
+                
+#-------------------------------------------------------------------------------
+# 1.3 cNMF.py
+#-------------------------------------------------------------------------------
 class CNMF(PyMFBase):
     """      
     CNMF(data, num_bases=4)
@@ -447,63 +447,48 @@ class CNMF(PyMFBase):
                 if self._converged(i):                    
                     self.ferr = self.ferr[:i]                    
                     break
-
-
+                
 #-------------------------------------------------------------------------------
-# 1.2 Define functions for using cNMF
-#------------------------------------------------------------------------------- 
-## From https://github.com/jurriaanjanssen/scRNAseq-snakemake
-# Function to extract hard cluster assignments form soft clusters
-def cluster_assignment(H):
-    return [np.argmax(H[:,i]) for i in range(H.shape[1])]
+# 1.4 dist.py
+#-------------------------------------------------------------------------------
+def l1_distance(d, vec):            
+    ret_val = np.sum(np.abs(d - vec), axis=0)                    
+    ret_val = ret_val.reshape((-1))                        
+    return ret_val
 
-# Function to calculate connectivity matrix for hard cluster assignments
-def connectivity(clusters):
-    Nsample = len(clusters)
-    connectivity_matrix = np.zeros((Nsample,Nsample))
-    for i in range(Nsample):
-        connectivity_matrix[i,np.where(clusters == clusters[i])] = 1
-    return connectivity_matrix
 
-# calculate cophenetic coefficient for consensus matrices
-def Calculate_cophcor(X):
-    dmat = pdist(X)
-    Z = average(dmat)
-    coph = cophenet(Z)
-    return np.corrcoef(dmat,coph)[0,1]
 
-    
-def cNMF(data,k,nrun,ncores,niter=1000):
-    def Run_cNMF(data,k,seed,niter=1000):
-        random.seed(seed)
-        model = CNMF(np.transpose(data), num_bases=k, niter=niter)
-        model.factorize(niter=niter)
-        return model
-    
-    # perform NMF in parralel with different random seeds
-    models = Parallel(n_jobs=ncores, verbose=10)(
-        delayed(Run_cNMF)(data, k, i, niter)
-        for i in range(nrun))
-    # Fetch cluster assignments, connectivity matrices and calculate the consensus matrix
-    consensus_matrix = sum([connectivity(cluster_assignment(mod.H)) for mod in models]) / nrun
-    # Calculate the cophenetic correlation coefficient
-    cophcor = Calculate_cophcor(consensus_matrix)
-    # Calculate objective function and select best model
-    objective = [mod.frobenius_norm() for mod in models]
-    # pick model with lowest objective value
-    model = models[objective.index(min(objective))]
-    return model, cophcor, consensus_matrix
-
-def find_threshold(cophcors,ks,min_cophenetic=0.95):
-    cross = [False, False] + [((cophcors[i] < min_cophenetic) & (cophcors[i-1] >= min_cophenetic) & (cophcors[i-2] >= min_cophenetic)) for i in range(2,len(cophcors))]
-    if any(cross) == False:
-        return ks[-1]
+def l2_distance(d, vec):    
+    if scipy.sparse.issparse(d):
+        ret_val = sparse_l2_distance(d, vec)
     else:
-        last_cross = [i for i,x in enumerate(cross) if x][-1]
-        diff = [abs(min_cophenetic-cophcors[last_cross-1]),min_cophenetic-cophcors[last_cross]]
-        return ks[last_cross - 2 + [i for i,x in enumerate(diff) if x == min(diff)][0]]
+        ret_val = np.sqrt(((d[:,:] - vec)**2.0).sum(axis=0))
+            
+    return ret_val.reshape((-1))        
 
-def biggest_drop(cophcors):
-    cross = [-100] + [cophcors[i-1] - cophcors[i] for i in range(1,len(cophcors))]
-    return cross.index(max(cross))-1
 
+def pdist_cNMF(A, B, metric='l2' ):
+    # compute pairwise distance between a data matrix A (d x n) and B (d x m).
+    # Returns a distance matrix d (n x m).
+    d = np.zeros((A.shape[1], B.shape[1]))
+    if A.shape[1] <= B.shape[1]:
+        for aidx in range(A.shape[1]):
+            if metric == 'l2':
+                d[aidx:aidx+1,:] = l2_distance(B[:,:], A[:,aidx:aidx+1]).reshape((1,-1))
+            if metric == 'l1':
+                d[aidx:aidx+1,:] = l1_distance(B[:,:], A[:,aidx:aidx+1]).reshape((1,-1))
+    else:
+        for bidx in range(B.shape[1]):
+            if metric == 'l2':
+                d[:, bidx:bidx+1] = l2_distance(A[:,:], B[:,bidx:bidx+1]).reshape((-1,1))
+            if metric == 'l1':
+                d[:, bidx:bidx+1] = l1_distance(A[:,:], B[:,bidx:bidx+1]).reshape((-1,1))               
+    
+    return d
+
+
+def vq(A, B, metric='l2'):
+    # assigns data samples in B to cluster centers A and
+    # returns an index list [assume n column vectors, d x n]
+    assigned = np.argmin(pdist_cNMF(A,B, metric=metric), axis=0)
+    return assigned

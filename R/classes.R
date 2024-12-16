@@ -14,11 +14,11 @@ setClass("Statescope",
            BLADE_output = "list",
            fractions = 'DataFrame',
            ct_specific_gep = 'list',
-           states = 'SimpleList'),
+           states = 'list'),
          prototype = list(
            BLADE_output = list(NA),
            fractions = DataFrame(NA),
            ct_specific_gep = list(NA),
-           states = SimpleList(NA)
+           states = list(NA)
          )
          )

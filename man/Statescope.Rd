@@ -4,7 +4,14 @@
 \alias{Statescope}
 \title{Run Statescope}
 \usage{
-Statescope(Statescope, cores = 1L)
+Statescope(
+  Statescope,
+  max_clusters = 10L,
+  n_iter = 10L,
+  n_final_iter = 100L,
+  min_cophenetic = 0.9,
+  Ncores = 1L
+)
 }
 \arguments{
 \item{Statescope}{Statescope obj from BLADE_deconvolution}

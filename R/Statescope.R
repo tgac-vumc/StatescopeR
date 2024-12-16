@@ -10,23 +10,22 @@
 #'
 #' @examples
 #' Statescope = Statescope(Statescope, 1L)
-Statescope <- function(Statescope, cores = 1L) {
+Statescope <- function(Statescope, max_clusters = 10L, n_iter = 10L,
+                       n_final_iter = 100L, min_cophenetic = 0.9, Ncores = 1L) {
+    ## init list for states
+    states = list()
     ## get celltypes
     cts = names(Statescope@ct_specific_gep)
-    cts = 'gamma cell'
     for (ct in cts){
         ## get ct_specific_gep for state clustering
         data_scaled = as.matrix(assay(Statescope@ct_specific_gep[[ct]],
                                       'weighted_gep'))
-        data_scaled = data_scaled[selected_genes,]
         #-----------------------------------------------------------------------
         # 1.1 Run initial NMF runs for k selection
         #-----------------------------------------------------------------------
         data_dict = list()
-        for (k in range(2,3)){
-            source_python('Python/cNMF_functions.py')
-            source_python('Python/cNMF_helper_functions.py')
-            cNMF_result = cNMF(data_scaled, 2L,10L, 5L)
+        for (k in seq(2,max_clusters)){
+            cNMF_result = cNMF(data_scaled, max_clusters, n_iter, Ncores)
             H = cNMF_result[[1]]$H
             cluster_assignment = list()
             for (i in seq(ncol(H))){
@@ -43,14 +42,31 @@ Statescope <- function(Statescope, cores = 1L) {
         #-----------------------------------------------------------------------
         # 1.2 Choose k
         #-----------------------------------------------------------------------
+        ## Extract ks and cophcors
+        ks = c()
+        cophcors = c()
+        for (k in seq(2,max_clusters)){
+            ks = append(ks, k)
+            cophcors = append(cophcors, data_dict[[k]]$cophcor)
+        }
 
+        nclust = find_threshold(cophcors, ks, min_cophenetic)
+        drop = biggest_drop(cophcors)
+        if (!nclust){
+            nclust = drop}
+        #-----------------------------------------------------------------------
+        # 1.3 Run final model
+        #-----------------------------------------------------------------------
+        final_cNMF_result = cNMF(data_scaled, as.integer(nclust), n_final_iter, Ncores)
+        final_H = DataFrame(t(final_cNMF_result[[1]]$H))
+        rownames(final_H) = colnames(Statescope@fractions)
 
+        ## Add result to states
+        states[ct] = final_H
     }
 
-
-
-
-
+    ## Add States to Statescope object
+    Statescope@states = states
 
   return(Statescope)
 

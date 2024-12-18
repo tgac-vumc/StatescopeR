@@ -7,14 +7,12 @@
 #' same as signature dataset
 #'
 #' @return Vector of genes to use for deconvolution
-#' @import scran reticulate
+#' @import scran basilisk reticulate
 #' @export
 #'
 #' @examples
 #' selected_genes = select_genes(data)
 select_genes <- function(data) {
-  ## import autogenes
-  ag <- import('autogenes')
   print('This takes about 15 minutes with 4k genes and 14 cell types ')
   ## First select hvg
   ## calculate per gene variance
@@ -34,11 +32,26 @@ select_genes <- function(data) {
 
   }
 
-  ## Select genes with AutoGeneS
-  ag$init(t(centroids))
-  ag$optimize(ngen= 5000L, seed = 42L, offspring_size = 100L, verbose = FALSE)
-  index = ag$select(index=0L)
-  selected_genes = rownames(centroids)[index]
+  ## start basilisk
+  proc <- basiliskStart(autogenes, testload = c('autogenes'))
+
+  ## Select genes with AutoGeneS using Basilisk
+  selected_genes <- basiliskRun(proc, fun = function(centroids, ngen, seed,
+                                                       offspring_size){
+      ## import autogenes
+      ag <- reticulate::import('autogenes')
+      ag$init(t(centroids))
+      ag$optimize(ngen= ngen, seed = seed, offspring_size = offspring_size,
+                  verbose = FALSE)
+      index = ag$select(index=0L)
+      selected_genes = rownames(centroids)[index]
+      selected_genes
+
+  }, centroids = centroids, ngen = 5000L, seed = 42L, offspring_size = 100L)
+
+  ## stop basilisk
+  basiliskStop(proc)
+
 
   return(selected_genes)
 

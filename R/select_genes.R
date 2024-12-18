@@ -7,11 +7,14 @@
 #' same as signature dataset
 #'
 #' @return Vector of genes to use for deconvolution
+#' @import scran reticulate
 #' @export
 #'
 #' @examples
 #' selected_genes = select_genes(data)
 select_genes <- function(data) {
+  ## import autogenes
+  ag <- import('autogenes')
   print('This takes about 15 minutes with 4k genes and 14 cell types ')
   ## First select hvg
   ## calculate per gene variance

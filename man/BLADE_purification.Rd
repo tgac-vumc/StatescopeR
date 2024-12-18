@@ -17,12 +17,13 @@ expression and mean-variance corrected variance per cell type}
 \item{cores}{number of cores to use for paralellization}
 }
 \value{
-updated Statescopet S4 object with ct_specific_gep added
+updated Statescope S4 object with ct_specific_gep added
 }
 \description{
 \code{BLADE_purification.R} Runs BLADE to estimate cell type-specific
 gene expression profiles
 }
 \examples{
-ct_specific_gep = BLADE_purification(Statescope, signature bulk, 1L)
+Statescope = BLADE_purification(Statescope, signature, bulk, 1L)
+ct_specific_getp = Statescope@ct_specific_gep
 }

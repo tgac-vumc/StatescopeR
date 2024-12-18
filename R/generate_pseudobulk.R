@@ -7,6 +7,7 @@
 #' @param data SingleCellExperiment object of which to generate pseudobulk
 #'
 #' @return SummarizedExperiment with pseudobulk from the scRNAseq
+#' @import S4Vectors SummarizedExperiment SingleCellExperiment
 #' @export
 #'
 #' @examples

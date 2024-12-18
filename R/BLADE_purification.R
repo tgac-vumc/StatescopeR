@@ -9,11 +9,12 @@
 #' @param bulk mRNA to be deconvolved
 #' @param cores number of cores to use for paralellization
 #'
-#' @return updated Statescopet S4 object with ct_specific_gep added
+#' @return updated Statescope S4 object with ct_specific_gep added
 #' @export
 #'
 #' @examples
-#' ct_specific_gep = BLADE_purification(Statescope, signature bulk, 1L)
+#' Statescope = BLADE_purification(Statescope, signature, bulk, 1L)
+#' ct_specific_getp = Statescope@ct_specific_gep
 BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   ## get final BLADE object from result ready for Python code
   BLADE_obj = list('final_obj' = Statescope@BLADE_output[[1]],

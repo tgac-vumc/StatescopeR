@@ -7,6 +7,7 @@
 #'
 #' @return SimpleList DataFrames for Mu (mean per gene per cell type) and
 #' Omega (variance corrected std.dev per gene per cell type)
+#' @import matrixStats scran
 #' @export
 #'
 #' @examples

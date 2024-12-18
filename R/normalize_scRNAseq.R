@@ -6,6 +6,9 @@
 #' @param SingleCellExperiment object
 #'
 #' @return SingleCellExperiment object with add normcounts and logcounts assays
+#' @import dplyr
+#' @import SingleCellExperiment
+#' @importFrom methods as
 #' @export
 #'
 #' @examples

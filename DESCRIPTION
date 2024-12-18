@@ -4,7 +4,10 @@ Title: Tumor-informed RNA Deconvolution
 Version: 0.1.0
 Author: Mischa Steketee
 Maintainer: Mischa Steketee <m.f.b.stekete@amsterdamumc.nl>
+Imports: S4Vectors, SummarizedExperiment, reticulate, scRNAseq, dplyr, methods, SingleCellExperiment, matrixStats, scran, basilisk
+Suggest: scRNAseq
 Description: This package deconvolves bulk RNA into its cellular components using a scRNAseq references and optionally prior knowledge on the fraction of those components.
 License: MIT
 Encoding: UTF-8
 RoxygenNote: 7.3.2
+StagedInstall: no

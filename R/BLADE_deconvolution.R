@@ -16,10 +16,48 @@
 #' @param Nrepfinal hyperparameter ....
 #'
 #' @return Statescope S4 object
+#' @import SummarizedExperiment
+#' @importFrom scRNAseq SegerstolpePancreasData
 #' @export
 #'
 #' @examples
-#' predicted_fractions = BLADE_deconvolution(signature, bulk, selected_genes, 1L)
+#' ## Load data
+#' data <- scRNAseq::SegerstolpePancreasData()
+#'
+#' ## Preprocess data
+#' data$donor = data$individual
+#' data$label = data$`cell type`
+#'
+#' ## remove NA cells
+#' data = data[,!is.na(data$label)]
+#'
+#' ## remove duplicates gene names
+#' data = data[!duplicated(rownames(data)),]
+#'
+#' ## remove cells with less than 100 in total cohort
+#' celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
+#' data = data[,!data$label %in% celltypes_to_remove]
+#'
+#' data = normalize_scRNAseq(data)
+#'
+#' ## Create and normalized pseudobulk from scRNAseq
+#' pseudobulk = generate_pseudobulk(data)
+#'
+#' pseudobulk = normalize_bulkRNAseq(pseudobulk)
+#'
+#' ## Measure true cell fractions from pseudobulk
+#' true_fractions = gather_true_fractions(data)
+#'
+#' ## Create signature from scRNAseq for deconvolution
+#' signature = create_signature(data)
+#'
+#' ## Select genes optimized for deconvolution
+#' selected_genes = select_genes(data)
+#'
+#' ## Perform Deconvolution with BLADE
+#' Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+#' predicted_fractions = Statescope@fractions
+#'
 BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
                       Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, SY = 1L,
                       Nrep = 10L, Nrepfinal = 1000L) {

@@ -9,3 +9,29 @@ autogenes <- BasiliskEnvironment(envname="autogenes",
                                          'matplotlib==3.9.3'),
                               channels = c('bioconda', 'conda-forge')
 )
+
+deconvolution <- BasiliskEnvironment(envname="deconvolution",
+                                 pkgname="StatescopeR",
+                                 packages=c('python==3.11', 'numba==0.59.1',
+                                            'pandas==1.5.3', 'joblib==1.4.2',
+                                            'numpy==1.23.5',
+                                            'scipy==1.14.1',
+                                            'scikit-learn==1.1.3',
+                                            'matplotlib==3.9.3'),
+                                 channels = c('bioconda', 'conda-forge')
+)
+
+statescope <- BasiliskEnvironment(envname="statescope",
+                                     pkgname="StatescopeR",
+                                     packages=c('python==3.11',
+                                                'numba==0.59.1',
+                                                'pandas==1.5.3', 'joblib==1.4.2',
+                                                'numpy==1.23.5',
+                                                'scipy==1.14.1',
+                                                'matplotlib==3.9.3',
+                                                'cvxopt==1.3.2',
+                                                'seaborn==0.13.2',
+                                             'scikit-learn==1.6.0'),
+                                     channels = c('bioconda', 'conda-forge')
+)
+

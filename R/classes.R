@@ -8,8 +8,9 @@
 #' @slot states cell type-specific states based on ct_specific_gep
 #' per sample
 #' @importFrom S4Vectors DataFrame
+#' @importFrom methods setClass
 #' @export
-setClass("Statescope",
+methods::setClass("Statescope",
          slots = c(
            BLADE_output = "list",
            fractions = 'DataFrame',

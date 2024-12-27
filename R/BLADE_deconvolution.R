@@ -16,7 +16,7 @@
 #' @param Nrepfinal hyperparameter ....
 #'
 #' @return Statescope S4 object
-#' @import SummarizedExperiment
+#' @import SummarizedExperiment reticulate basilisk
 #' @importFrom scRNAseq SegerstolpePancreasData
 #' @export
 #'
@@ -69,11 +69,30 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
   Omega = as.matrix(signature$omega[genes,])
   bulk = as.matrix(assay(bulk[genes, ],'normalized_counts'))
 
-  result = Framework_Iterative(Mu, Omega,
+  ## start basilisk
+  proc <- basiliskStart(deconvolution)
+
+  ## Estimate fractions with BLADE using Basilisk
+  result <- basiliskRun(proc, fun = function(Mu, Omega,
+                                             bulk,
+                                             Alpha, Alpha0,
+                                             Kappa0, sY, Nrep,
+                                             Njob, IterMax){
+      ## import OncoBLADE
+      reticulate::source_python('inst/python/OncoBLADE.py')
+
+      ## Run deconvolution
+      result = Framework_Iterative(Mu, Omega,
                                bulk,
                                Alpha = Alpha, Alpha0= Alpha0,
                                Kappa0 = Kappa0, sY = SY, Nrep = Nrep,
                                Njob =cores, IterMax = Nrepfinal)
+      result
+      }, Mu=Mu, Omega=Omega, bulk=bulk, Alpha=Alpha, Alpha0=Alpha0,
+      Kappa0=Kappa0, sY=sY, Nrep=Nrep, Njob=cores, IterMax=nrepfinal)
+
+  ## stop basilisk
+  basiliskStop(proc)
 
   ## make fractions Df
   fractions = DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),

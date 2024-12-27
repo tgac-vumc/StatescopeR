@@ -10,6 +10,7 @@
 #' @param cores number of cores to use for paralellization
 #'
 #' @return updated Statescope S4 object with ct_specific_gep added
+#' @import basilisk reticulate
 #' @export
 #'
 #' @examples
@@ -25,8 +26,23 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   Omega = as.matrix(signature$omega)
   bulk = as.matrix(assay(bulk,'normalized_counts'))
 
-  result = Purify_AllGenes(BLADE_obj, Mu, Omega,
+  ## start basilisk
+  proc <- basiliskStart(deconvolution)
+
+  ## Refine gene expression estimation using Basilisk
+  result <- basiliskRun(proc, fun = function(BLADE_obj, Mu, Omega,
+                                             bulk, cores){
+      ## import OncoBLADE
+      reticulate::source_python('inst/python/OncoBLADE.py')
+
+      ## Run refinement
+      result = Purify_AllGenes(BLADE_obj, Mu, Omega,
                                bulk, cores)
+      result
+  }, BLADE_obj=BLADE_obj , Mu=Mu, Omega=Omega, bulk=bulk, cores=cores)
+
+  ## stop basilisk
+  basiliskStop(proc)
 
   ## update BLADE results
   Statescope@BLADE_output = result

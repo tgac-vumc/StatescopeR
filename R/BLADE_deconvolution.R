@@ -24,6 +24,8 @@
 #' ## Load data
 #' data <- scRNAseq::SegerstolpePancreasData()
 #'
+#' ## subset to 100 genes for example
+#' data = data[1:100]
 #' ## Preprocess data
 #' data$donor = data$individual
 #' data$label = data$`cell type`
@@ -59,10 +61,8 @@
 #' predicted_fractions = Statescope@fractions
 #'
 BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
-                      Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, SY = 1L,
+                      Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L,
                       Nrep = 10L, Nrepfinal = 1000L) {
-  ## save sample names for later use
-  sample_names = colnames(bulk)
 
   ## init Mu en omega from list
   Mu = as.matrix(signature$mu[genes,])
@@ -73,34 +73,44 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
   proc <- basiliskStart(deconvolution)
 
   ## Estimate fractions with BLADE using Basilisk
-  result <- basiliskRun(proc, fun = function(Mu, Omega,
+  Statescope <- basiliskRun(proc, fun = function(Mu, Omega,
                                              bulk,
                                              Alpha, Alpha0,
                                              Kappa0, sY, Nrep,
-                                             Njob, IterMax){
+                                             cores, Nrepfinal){
+
       ## import OncoBLADE
-      reticulate::source_python('inst/python/OncoBLADE.py')
+      reticulate::source_python(system.file('python/OncoBLADE.py',
+                                            package ='StatescopeR'))
 
       ## Run deconvolution
       result = Framework_Iterative(Mu, Omega,
                                bulk,
                                Alpha = Alpha, Alpha0= Alpha0,
-                               Kappa0 = Kappa0, sY = SY, Nrep = Nrep,
-                               Njob =cores, IterMax = Nrepfinal)
-      result
+                               Kappa0 = Kappa0, sY = sY, Nrep = Nrep,
+                               Njob = cores, IterMax = Nrepfinal)
+
+
+      ## source StatescopeR package for class and DataFrame for fractions
+      library(StatescopeR)
+      library(S4Vectors)
+
+      ## make fractions Df
+      fractions = DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
+                            row.names = colnames(Mu))
+      colnames(fractions) = colnames(bulk)
+
+      ## Save S4 object with Statescope and fractions slots
+      Statescope = new('Statescope', BLADE_output = result,
+                       fractions = fractions)
+
+      Statescope
+
       }, Mu=Mu, Omega=Omega, bulk=bulk, Alpha=Alpha, Alpha0=Alpha0,
-      Kappa0=Kappa0, sY=sY, Nrep=Nrep, Njob=cores, IterMax=nrepfinal)
+      Kappa0=Kappa0, sY=sY, Nrep=Nrep, cores= cores, Nrepfinal=Nrepfinal)
 
   ## stop basilisk
   basiliskStop(proc)
-
-  ## make fractions Df
-  fractions = DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
-                        row.names = colnames(signature$mu))
-  colnames(fractions) = sample_names
-
-  ## Save S4 object with Statescope and fractions slots
-  Statescope = new('Statescope', BLADE_output = result, fractions = fractions)
 
   return(Statescope)
 

@@ -12,7 +12,7 @@ BLADE_deconvolution(
   Alpha = 1L,
   Alpha0 = 1000L,
   Kappa0 = 1L,
-  SY = 1L,
+  sY = 1L,
   Nrep = 10L,
   Nrepfinal = 1000L
 )
@@ -33,11 +33,11 @@ expression and mean-variance corrected variance per cell type}
 
 \item{Kappa0}{hyperparameter ....}
 
-\item{SY}{hyperparameter ....}
-
 \item{Nrep}{hyperparameter}
 
 \item{Nrepfinal}{hyperparameter ....}
+
+\item{SY}{hyperparameter ....}
 }
 \value{
 Statescope S4 object
@@ -49,6 +49,8 @@ Statescope S4 object
 ## Load data
 data <- scRNAseq::SegerstolpePancreasData()
 
+## subset to 100 genes for example
+data = data[1:100]
 ## Preprocess data
 data$donor = data$individual
 data$label = data$`cell type`

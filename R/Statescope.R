@@ -30,8 +30,10 @@ Statescope <- function(Statescope,
                        max_clusters, n_iter, n_final_iterL, min_cophenetic,
                        Ncores) {
             ## source cNMF code
-            reticulate::source_python('inst/python/cNMF_functions.py')
-            reticulate::source_python('inst/python/cNMF_helper_functions.py')
+            reticulate::source_python(system.file('python/cNMF_functions.py',
+                                                  package ='StatescopeR'))
+            reticulate::source_python(system.file(
+                'python/cNMF_helper_functions.py',package ='StatescopeR'))
 
             ## perform state discovery within Basilisk
             for (ct in cts) {

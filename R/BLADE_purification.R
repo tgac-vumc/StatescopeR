@@ -56,7 +56,7 @@
 BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   ## get final BLADE object from result ready for Python code
   BLADE_obj = list('final_obj' = Statescope@BLADE_output[[1]],
-                   'outs' = Statescope@BLADE_output[[4]])
+                   'outs' = Statescope@BLADE_output[[3]])
 
   ## init Mu en omega from list
   Mu = as.matrix(signature$mu)
@@ -64,6 +64,7 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
   bulk = as.matrix(assay(bulk,'normalized_counts'))
 
   ## start basilisk
+  setBasiliskShared(TRUE)
   proc <- basiliskStart(deconvolution)
 
   ## Refine gene expression estimation using Basilisk
@@ -76,6 +77,11 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
       ## Run refinement
       result = Purify_AllGenes(BLADE_obj, Mu, Omega,
                                bulk, cores)
+
+      ## source StatescopeR package for class and DataFrame for fractions
+      library(StatescopeR)
+      library(S4Vectors)
+
       ## update BLADE results
       Statescope@BLADE_output = result
 
@@ -112,10 +118,6 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
 
   ## stop basilisk
   basiliskStop(proc)
-
-
-
-
 
   return(Statescope)
 

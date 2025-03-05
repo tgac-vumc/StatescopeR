@@ -1007,13 +1007,13 @@ def Purify_AllGenes(OncoBLADE_object, Mu, Omega, Y, Ncores):
             Y = np.atleast_2d(logY[ix,:]),
             SigmaY = np.atleast_2d(SigmaY[ix,:]),
             Mu0 = np.atleast_2d(Mu[ix,:]),
-            Alpha = obj.Alpha,
+            Alpha = obj['Alpha'],
             Alpha0 = OncoBLADE_object['outs']['Alpha0'],
             Beta0 = np.atleast_2d(Beta0[ix,:]),
             Kappa0 = OncoBLADE_object['outs']['Kappa0'],
             Nu_Init = np.reshape(np.atleast_3d(Nu_Init[:,ix,:]), (Nsample,1,Ncell)), ## Reshape else will be (Nsample,Ncell,Ngene/1)
             Omega_Init = np.atleast_2d(Omega[ix,:]),
-            Beta_Init = obj.Beta,
+            Beta_Init = obj['Beta'],
             fix_Beta=True))
 
     outs = Parallel(n_jobs=Ncores, verbose=10)(

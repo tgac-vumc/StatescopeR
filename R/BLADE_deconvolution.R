@@ -70,6 +70,7 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
   bulk = as.matrix(assay(bulk[genes, ],'normalized_counts'))
 
   ## start basilisk
+  setBasiliskShared(TRUE)
   proc <- basiliskStart(deconvolution)
 
   ## Estimate fractions with BLADE using Basilisk
@@ -100,9 +101,16 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
                             row.names = colnames(Mu))
       colnames(fractions) = colnames(bulk)
 
+      ## Make list from final obj of result[[1]] for use in purification
+      result[[1]] = list('Alpha' = result[[1]]$Alpha,
+                         'Beta' = result[[1]]$Beta)
+
       ## Save S4 object with Statescope and fractions slots
       Statescope = new('Statescope', BLADE_output = result,
                        fractions = fractions)
+
+      ## Remove Python object
+      Statescope@BLADE_output[[3]] = NULL
 
       Statescope
 

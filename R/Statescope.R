@@ -23,6 +23,7 @@ Statescope <- function(Statescope,
     cts = names(Statescope@ct_specific_gep)
 
     ## start basilisk
+    setBasiliskShared(FALSE)
     proc <- basiliskStart(statescope)
 
     ## perform state discovery within Basilisk

@@ -16,7 +16,15 @@ Statescope(
 \arguments{
 \item{Statescope}{Statescope obj from BLADE_deconvolution}
 
-\item{cores}{number of cores to use for paralellization}
+\item{max_clusters}{...}
+
+\item{n_iter}{...}
+
+\item{n_final_iter}{...}
+
+\item{min_cophenetic}{...}
+
+\item{Ncores}{number of cores to use for paralellization}
 }
 \value{
 updated Statescope S4 object with states per celltype added
@@ -25,5 +33,44 @@ updated Statescope S4 object with states per celltype added
 \code{Statescope.R} Discovers states in purified resuls
 }
 \examples{
+#' ## Load data
+data <- scRNAseq::SegerstolpePancreasData()
+
+## subset to 100 genes for example
+data = data[1:100]
+## Preprocess data
+data$donor = data$individual
+data$label = data$`cell type`
+
+## remove NA cells
+data = data[,!is.na(data$label)]
+
+## remove duplicates gene names
+data = data[!duplicated(rownames(data)),]
+
+## remove cells with less than 100 in total cohort
+celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
+data = data[,!data$label \%in\% celltypes_to_remove]
+
+data = normalize_scRNAseq(data)
+
+## Create and normalized pseudobulk from scRNAseq
+pseudobulk = generate_pseudobulk(data)
+
+pseudobulk = normalize_bulkRNAseq(pseudobulk)
+
+## Measure true cell fractions from pseudobulk
+true_fractions = gather_true_fractions(data)
+
+## Create signature from scRNAseq for deconvolution
+signature = create_signature(data)
+
+## Select genes optimized for deconvolution
+selected_genes = select_genes(data)
+
+## Perform Deconvolution with BLADE
+Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+Statescope = BLADE_purification(Statescope, signature, pseudobulk, 1L)
 Statescope = Statescope(Statescope, 1L)
+
 }

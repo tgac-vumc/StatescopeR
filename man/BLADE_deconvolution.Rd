@@ -33,11 +33,11 @@ expression and mean-variance corrected variance per cell type}
 
 \item{Kappa0}{hyperparameter ....}
 
+\item{sY}{hyperparameter ....}
+
 \item{Nrep}{hyperparameter}
 
 \item{Nrepfinal}{hyperparameter ....}
-
-\item{SY}{hyperparameter ....}
 }
 \value{
 Statescope S4 object

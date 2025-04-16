@@ -4,7 +4,7 @@
 \alias{normalize_scRNAseq}
 \title{Normalize scRNAseq data}
 \usage{
-normalize_scRNAseq(data)
+normalize_scRNAseq(SingleCellExperiment)
 }
 \arguments{
 \item{SingleCellExperiment}{object}
@@ -17,5 +17,10 @@ SingleCellExperiment object with add normcounts and logcounts assays
 SingleCellExperiment object
 }
 \examples{
+## Load data
+data <- scRNAseq::SegerstolpePancreasData()
+
+## subset to 100 genes for example
+data = data[1:100]
 data = normalize_scRNAseq(data)
 }

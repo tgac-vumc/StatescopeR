@@ -9,6 +9,7 @@
 #' per sample
 #' @importFrom S4Vectors DataFrame
 #' @importFrom methods setClass
+#' @importFrom utils globalVariables
 #' @export
 methods::setClass("Statescope",
          slots = c(
@@ -23,3 +24,8 @@ methods::setClass("Statescope",
            states = list(NA)
          )
          )
+
+## Make Python function global for check
+utils::globalVariables(c('Framework_Iterative', 'Purify_AllGenes',
+                         'biggest_drop', 'cNMF', 'find_threshold',
+                         '.')) # Also . from dplyr

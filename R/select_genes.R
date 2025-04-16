@@ -8,9 +8,27 @@
 #'
 #' @return Vector of genes to use for deconvolution
 #' @import scran basilisk reticulate
+#' @importFrom scRNAseq SegerstolpePancreasData
 #' @export
 #'
 #' @examples
+## Load data
+#' data <- scRNAseq::SegerstolpePancreasData()
+#'
+#' ## subset to 100 genes for example
+#' data = data[1:100]
+#' data$donor = data$individual
+#' data$label = data$`cell type`
+#' ## remove NA cells
+#' data = data[,!is.na(data$label)]
+#'
+## remove duplicates gene names
+#' data = data[!duplicated(rownames(data)),]
+#'
+## remove cells with less than 100 in total cohort
+#' celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
+#' data = data[,!data$label %in% celltypes_to_remove]
+#' data = normalize_scRNAseq(data)
 #' selected_genes = select_genes(data)
 select_genes <- function(data) {
   print('This takes about 15 minutes with 4k genes and 14 cell types ')

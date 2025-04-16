@@ -11,6 +11,7 @@
 #'
 #' @return updated Statescope S4 object with ct_specific_gep added
 #' @import basilisk reticulate
+#' @importFrom S4Vectors DataFrame
 #' @export
 #'
 #' @examples
@@ -80,7 +81,7 @@ BLADE_purification <- function(Statescope, signature, bulk, cores = 1L) {
 
       ## source StatescopeR package for class and DataFrame for fractions
       library(StatescopeR)
-      library(S4Vectors)
+      #library(S4Vectors)
 
       ## update BLADE results
       Statescope@BLADE_output = result

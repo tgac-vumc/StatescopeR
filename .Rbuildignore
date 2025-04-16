@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.BBSoptions$
+^LICENSE\.md$
+^Example\.R$
+^\Statescope\.rds$
+^selected_genes\.csv$

@@ -17,5 +17,11 @@ Omega (variance corrected std.dev per gene per cell type)
 \code{create_signature} Creates signature from scRNAseq data for Deconvolution
 }
 \examples{
+## Load data
+data <- scRNAseq::SegerstolpePancreasData()
+
+## subset to 100 genes for example
+data = data[1:100]
+data = normalize_scRNAseq(data)
 signature = create_signature(data)
 }

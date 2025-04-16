@@ -17,5 +17,19 @@ Vector of genes to use for deconvolution
 \code{select_genes.R} select genes to use for deconvolution
 }
 \examples{
+data <- scRNAseq::SegerstolpePancreasData()
+
+## subset to 100 genes for example
+data = data[1:100]
+data$donor = data$individual
+data$label = data$`cell type`
+## remove NA cells
+data = data[,!is.na(data$label)]
+
+data = data[!duplicated(rownames(data)),]
+
+celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
+data = data[,!data$label \%in\% celltypes_to_remove]
+data = normalize_scRNAseq(data)
 selected_genes = select_genes(data)
 }

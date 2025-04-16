@@ -7,10 +7,18 @@
 #'
 #' @return SimpleList DataFrames for Mu (mean per gene per cell type) and
 #' Omega (variance corrected std.dev per gene per cell type)
-#' @import matrixStats scran
+#' @import scran
+#' @importFrom scRNAseq SegerstolpePancreasData
+#' @importFrom matrixStats rowSds rowVars
 #' @export
 #'
 #' @examples
+#' ## Load data
+#' data <- scRNAseq::SegerstolpePancreasData()
+#'
+#' ## subset to 100 genes for example
+#' data = data[1:100]
+#' data = normalize_scRNAseq(data)
 #' signature = create_signature(data)
 create_signature <- function(data) {
   ## init Mu, Omega & Var

@@ -7,14 +7,24 @@
 #' @param data SingleCellExperiment object of which to generate pseudobulk
 #'
 #' @return SummarizedExperiment with pseudobulk from the scRNAseq
-#' @import S4Vectors SummarizedExperiment SingleCellExperiment
+#' @import SingleCellExperiment
+#' @importFrom S4Vectors DataFrame SimpleList
+#' @importFrom SummarizedExperiment SummarizedExperiment
 #' @export
 #'
 #' @examples
+#' #' ## Load data
+#' data <- scRNAseq::SegerstolpePancreasData()
+#'
+#' ## subset to 100 genes for example
+#' data = data[1:100]
+#' ## Preprocess data
+#' data$donor = data$individual
+#' data$label = data$`cell type`
 #' pseudobulk = generate_pseudobulk(data)
 generate_pseudobulk <- function(data) {
   ## init pseudobulk df
-  pseudobulk = DataFrame()
+  pseudobulk = S4Vectors::DataFrame()
 
   ## loop over samples
   for (sample in unique(data$donor)) {
@@ -30,7 +40,7 @@ generate_pseudobulk <- function(data) {
   rownames(pseudobulk) = rownames(data)
 
   ## Convert to SummarizedExperiment
-  pseudobulk = SummarizedExperiment(assays = SimpleList(counts = pseudobulk))
+  pseudobulk = SummarizedExperiment(assays = S4Vectors::SimpleList(counts = pseudobulk))
   ## return pseudobulk
   return(pseudobulk)
 }

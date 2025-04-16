@@ -11,13 +11,16 @@
 #' @param Alpha hyperparameter ....
 #' @param Alpha0 hyperparameter ....
 #' @param Kappa0 hyperparameter ....
-#' @param SY hyperparameter ....
+#' @param sY hyperparameter ....
 #' @param Nrep hyperparameter
 #' @param Nrepfinal hyperparameter ....
 #'
 #' @return Statescope S4 object
-#' @import SummarizedExperiment reticulate basilisk
+#' @import reticulate basilisk
 #' @importFrom scRNAseq SegerstolpePancreasData
+#' @importFrom SummarizedExperiment SummarizedExperiment assay
+#' @importFrom S4Vectors DataFrame
+#' @importFrom methods new
 #' @export
 #'
 #' @examples
@@ -94,7 +97,7 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
 
       ## source StatescopeR package for class and DataFrame for fractions
       library(StatescopeR)
-      library(S4Vectors)
+      #library(S4Vectors)
 
       ## make fractions Df
       fractions = DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),

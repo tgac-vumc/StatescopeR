@@ -5,10 +5,24 @@
 #' @param bulk SummarizedExperiment with raw bulk mRNA in the first assay
 #'
 #' @return SummarizedExperiment with added normalized counts
+#' @import dplyr
+#' @importFrom scRNAseq SegerstolpePancreasData
+#' @importFrom SummarizedExperiment SummarizedExperiment assay assay<-
+#' @importFrom SummarizedExperiment assayNames assayNames<-
 #' @export
 #'
 #' @examples
-#' bulk_norm = normalize_bulkRNAseq(bulk)
+#' #' ## Load data
+#' data <- scRNAseq::SegerstolpePancreasData()
+#'
+#' ## subset to 100 genes for example
+#' data = data[1:100]
+#' ## Preprocess data
+#' data$donor = data$individual
+#' data$label = data$`cell type`
+#' ## Create and normalized pseudobulk from scRNAseq
+#' pseudobulk = generate_pseudobulk(data)
+#' pseudobulk_norm = normalize_bulkRNAseq(pseudobulk)
 normalize_bulkRNAseq <- function(bulk) {
   ## Normalize to cp 10k
   bulk_norm = DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(./sum(.)*10000)))

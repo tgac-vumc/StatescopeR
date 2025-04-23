@@ -20,16 +20,16 @@ Vector of genes to use for deconvolution
 data <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data = data[1:100]
-data$donor = data$individual
-data$label = data$`cell type`
+data <- data[1:100]
+data$donor <- data$individual
+data$label <- data$`cell type`
 ## remove NA cells
-data = data[,!is.na(data$label)]
+data <- data[,!is.na(data$label)]
 
-data = data[!duplicated(rownames(data)),]
+data <- data[!duplicated(rownames(data)),]
 
-celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
-data = data[,!data$label \%in\% celltypes_to_remove]
-data = normalize_scRNAseq(data)
-selected_genes = select_genes(data)
+celltypes_to_remove <- names(table(data$label)[(table(data$label) <100)])
+data <- data[,!data$label \%in\% celltypes_to_remove]
+data <- normalize_scRNAseq(data)
+selected_genes <- select_genes(data)
 }

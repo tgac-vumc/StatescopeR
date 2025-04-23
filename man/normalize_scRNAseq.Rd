@@ -21,6 +21,6 @@ SingleCellExperiment object
 data <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data = data[1:100]
-data = normalize_scRNAseq(data)
+data <- data[1:100]
+data <- normalize_scRNAseq(data)
 }

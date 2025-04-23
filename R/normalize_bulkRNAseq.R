@@ -16,23 +16,23 @@
 #' data <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data = data[1:100]
+#' data <- data[1:100]
 #' ## Preprocess data
-#' data$donor = data$individual
-#' data$label = data$`cell type`
+#' data$donor <- data$individual
+#' data$label <- data$`cell type`
 #' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk = generate_pseudobulk(data)
-#' pseudobulk_norm = normalize_bulkRNAseq(pseudobulk)
+#' pseudobulk <- generate_pseudobulk(data)
+#' pseudobulk_norm <- normalize_bulkRNAseq(pseudobulk)
 normalize_bulkRNAseq <- function(bulk) {
   ## Normalize to cp 10k
-  bulk_norm = DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(./sum(.)*10000)))
+  bulk_norm <- DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(./sum(.)*10000)))
 
   ## Add gene symbols back as rownames
-  rownames(bulk_norm) = rownames(bulk)
+  rownames(bulk_norm) <- rownames(bulk)
 
   ## add normalized counts to SummarizedExperiment object
-  assay(bulk, 2) = bulk_norm
-  assayNames(bulk)[2] = 'normalized_counts' ## set name
+  assay(bulk, 2) <- bulk_norm
+  assayNames(bulk)[2] <- 'normalized_counts' ## set name
 
   ## return SummarizedExperiment with normalized bulk
   return(bulk)

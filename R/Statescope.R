@@ -18,41 +18,44 @@
 #' data <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data = data[1:100]
+#' data <- data[1:100]
 #' ## Preprocess data
-#' data$donor = data$individual
-#' data$label = data$`cell type`
+#' data$donor <- data$individual
+#' data$label <- data$`cell type`
 #'
 #' ## remove NA cells
-#' data = data[,!is.na(data$label)]
+#' data <- data[,!is.na(data$label)]
 #'
 #' ## remove duplicates gene names
-#' data = data[!duplicated(rownames(data)),]
+#' data <- data[!duplicated(rownames(data)),]
 #'
 #' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
-#' data = data[,!data$label %in% celltypes_to_remove]
+#' celltypes_to_remove <- names(table(data$label)[(table(data$label) <100)])
+#' data <- data[,!data$label %in% celltypes_to_remove]
 #'
-#' data = normalize_scRNAseq(data)
+#' data <- normalize_scRNAseq(data)
 #'
 #' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk = generate_pseudobulk(data)
+#' pseudobulk <- generate_pseudobulk(data)
 #'
-#' pseudobulk = normalize_bulkRNAseq(pseudobulk)
+#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 #'
 #' ## Measure true cell fractions from pseudobulk
-#' true_fractions = gather_true_fractions(data)
+#' true_fractions <- gather_true_fractions(data)
 #'
 #' ## Create signature from scRNAseq for deconvolution
-#' signature = create_signature(data)
+#' signature <- create_signature(data)
 #'
 #' ## Select genes optimized for deconvolution
-#' selected_genes = select_genes(data)
+#' selected_genes <- select_genes(data)
 #'
 #' ## Perform Deconvolution with BLADE
-#' Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
-#' Statescope = BLADE_purification(Statescope, signature, pseudobulk, 1L)
-#' Statescope = Statescope(Statescope, 1L)
+#' Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+#' Statescope <- BLADE_purification(Statescope, signature, pseudobulk, 1L)
+#' Statescope <- Statescope(Statescope, 1L)
+#'
+#' ## Look at output
+#' states(Statescope)
 #'
 Statescope <- function(Statescope,
                        max_clusters = 10L,
@@ -61,16 +64,16 @@ Statescope <- function(Statescope,
                        min_cophenetic = 0.9,
                        Ncores = 1L) {
     ## init list for states
-    states = list()
+    states <- list()
     ## get celltypes
-    cts = names(Statescope@ct_specific_gep)
+    cts <- names(ct_specific_gep(Statescope))
 
     ## start basilisk
     setBasiliskShared(FALSE)
     proc <- basiliskStart(statescope)
 
     ## perform state discovery within Basilisk
-    states <- basiliskRun(proc, fun = function(states, cts, Statescope,
+    states <- basiliskRun(proc, fun <- function(states, cts, Statescope,
                        max_clusters, n_iter, n_final_iterL, min_cophenetic,
                        Ncores) {
             ## source cNMF code
@@ -82,22 +85,23 @@ Statescope <- function(Statescope,
             ## perform state discovery within Basilisk
             for (ct in cts) {
                 ## get ct_specific_gep for state clustering
-                data_scaled = as.matrix(assay(Statescope@ct_specific_gep[[ct]],
-                                              'weighted_gep'))
-                #-----------------------------------------------------------------------
+                data_scaled <- as.matrix(assay(
+                    ct_specific_gep(Statescope)[[ct]],'weighted_gep'))
+                #---------------------------------------------------------------
                 # 1.1 Run initial NMF runs for k selection
-                #-----------------------------------------------------------------------
-                data_dict = list()
+                #---------------------------------------------------------------
+                data_dict <- list()
                 for (k in seq(2, max_clusters)) {
-                    cNMF_result = cNMF(data_scaled, max_clusters, n_iter,
+                    cNMF_result <- cNMF(data_scaled, max_clusters, n_iter,
                                        Ncores)
-                    H = cNMF_result[[1]]$H
-                    cluster_assignment = list()
+                    H <- cNMF_result[[1]]$H
+                    cluster_assignment <- list()
                     for (i in seq(ncol(H))) {
-                        cluster_assignment = append(cluster_assignment,
-                                                    which(H[, i] == max(H[, i])))
+                        cluster_assignment <- append(cluster_assignment,
+                                                    which(H[, i] == max(H[, i]))
+                                                    )
                     }
-                    data_dict[k] = SimpleList(
+                    data_dict[k] <- SimpleList(
                         'model' = cNMF_result[[1]],
                         'cophcor' = cNMF_result[[2]],
                         'consensus' = cNMF_result[[3]],
@@ -105,32 +109,32 @@ Statescope <- function(Statescope,
                     )
 
                 }
-                #-----------------------------------------------------------------------
+                #---------------------------------------------------------------
                 # 1.2 Choose k
-                #-----------------------------------------------------------------------
+                #---------------------------------------------------------------
                 ## Extract ks and cophcors
-                ks = c()
-                cophcors = c()
+                ks <- c()
+                cophcors <- c()
                 for (k in seq(2, max_clusters)) {
-                    ks = append(ks, k)
-                    cophcors = append(cophcors, data_dict[[k]]$cophcor)
+                    ks <- append(ks, k)
+                    cophcors <- append(cophcors, data_dict[[k]]$cophcor)
                 }
 
-                nclust = find_threshold(cophcors, ks, min_cophenetic)
-                drop = biggest_drop(cophcors)
+                nclust <- find_threshold(cophcors, ks, min_cophenetic)
+                drop <- biggest_drop(cophcors)
                 if (!nclust) {
-                    nclust = drop
+                    nclust <- drop
                 }
-                #-----------------------------------------------------------------------
+                #---------------------------------------------------------------
                 # 1.3 Run final model
-                #-----------------------------------------------------------------------
-                final_cNMF_result = cNMF(data_scaled, as.integer(nclust),
+                #---------------------------------------------------------------
+                final_cNMF_result <- cNMF(data_scaled, as.integer(nclust),
                                          n_final_iter, Ncores)
-                final_H = DataFrame(t(final_cNMF_result[[1]]$H))
-                rownames(final_H) = colnames(Statescope@fractions)
+                final_H <- DataFrame(t(final_cNMF_result[[1]]$H))
+                rownames(final_H) <- colnames(fractions(Statescope))
 
                 ## Add result to states
-                states[ct] = final_H
+                states[ct] <- final_H
             }
             states
         }, states = states, cts = cts, Statescope = Statescope,
@@ -142,7 +146,7 @@ Statescope <- function(Statescope,
     basiliskStop(proc)
 
     ## Add States to Statescope object
-    Statescope@states = states
+    states(Statescope) <- states
 
     return(Statescope)
 

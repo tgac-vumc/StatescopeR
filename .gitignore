@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
+StatescopeR.Rproj
 all_objects.RData
 Example.R
 OncoBLADE.BiocCheck

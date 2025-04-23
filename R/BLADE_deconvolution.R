@@ -28,49 +28,49 @@
 #' data <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data = data[1:100]
+#' data <- data[1:100]
 #' ## Preprocess data
-#' data$donor = data$individual
-#' data$label = data$`cell type`
+#' data$donor <- data$individual
+#' data$label <- data$`cell type`
 #'
 #' ## remove NA cells
-#' data = data[,!is.na(data$label)]
+#' data <- data[,!is.na(data$label)]
 #'
 #' ## remove duplicates gene names
-#' data = data[!duplicated(rownames(data)),]
+#' data <- data[!duplicated(rownames(data)),]
 #'
 #' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
-#' data = data[,!data$label %in% celltypes_to_remove]
+#' celltypes_to_remove <- names(table(data$label)[(table(data$label) <100)])
+#' data <- data[,!data$label %in% celltypes_to_remove]
 #'
-#' data = normalize_scRNAseq(data)
+#' data <- normalize_scRNAseq(data)
 #'
 #' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk = generate_pseudobulk(data)
+#' pseudobulk <- generate_pseudobulk(data)
 #'
-#' pseudobulk = normalize_bulkRNAseq(pseudobulk)
+#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 #'
 #' ## Measure true cell fractions from pseudobulk
-#' true_fractions = gather_true_fractions(data)
+#' true_fractions <- gather_true_fractions(data)
 #'
 #' ## Create signature from scRNAseq for deconvolution
-#' signature = create_signature(data)
+#' signature <- create_signature(data)
 #'
 #' ## Select genes optimized for deconvolution
-#' selected_genes = select_genes(data)
+#' selected_genes <- select_genes(data)
 #'
 #' ## Perform Deconvolution with BLADE
-#' Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
-#' predicted_fractions = Statescope@fractions
+#' Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+#' predicted_fractions <- fractions(Statescope)
 #'
 BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
                       Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L,
                       Nrep = 10L, Nrepfinal = 1000L) {
 
   ## init Mu en omega from list
-  Mu = as.matrix(signature$mu[genes,])
-  Omega = as.matrix(signature$omega[genes,])
-  bulk = as.matrix(assay(bulk[genes, ],'normalized_counts'))
+  Mu <- as.matrix(signature$mu[genes,])
+  Omega <- as.matrix(signature$omega[genes,])
+  bulk <- as.matrix(assay(bulk[genes, ],'normalized_counts'))
 
   ## start basilisk
   setBasiliskShared(TRUE)
@@ -88,32 +88,27 @@ BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
                                             package ='StatescopeR'))
 
       ## Run deconvolution
-      result = Framework_Iterative(Mu, Omega,
+      result <- Framework_Iterative(Mu, Omega,
                                bulk,
                                Alpha = Alpha, Alpha0= Alpha0,
                                Kappa0 = Kappa0, sY = sY, Nrep = Nrep,
                                Njob = cores, IterMax = Nrepfinal)
 
-
-      ## source StatescopeR package for class and DataFrame for fractions
-      library(StatescopeR)
-      #library(S4Vectors)
-
       ## make fractions Df
-      fractions = DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
+      fractions <- DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
                             row.names = colnames(Mu))
-      colnames(fractions) = colnames(bulk)
+      colnames(fractions) <- colnames(bulk)
 
       ## Make list from final obj of result[[1]] for use in purification
-      result[[1]] = list('Alpha' = result[[1]]$Alpha,
+      result[[1]] <- list('Alpha' = result[[1]]$Alpha,
                          'Beta' = result[[1]]$Beta)
 
       ## Save S4 object with Statescope and fractions slots
-      Statescope = new('Statescope', BLADE_output = result,
+      Statescope <- new('Statescope', BLADE_output = result,
                        fractions = fractions)
 
       ## Remove Python object
-      Statescope@BLADE_output[[3]] = NULL
+      BLADE_output(Statescope)[[3]] <- NULL
 
       Statescope
 

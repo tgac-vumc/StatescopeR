@@ -20,20 +20,20 @@ DataFrame with fractions of all cell types per sample
 data <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data = data[1:100]
+data <- data[1:100]
 ## Preprocess data
-data$donor = data$individual
-data$label = data$`cell type`
+data$donor <- data$individual
+data$label <- data$`cell type`
 
 ## remove NA cells
-data = data[,!is.na(data$label)]
+data <- data[,!is.na(data$label)]
 
 ## remove duplicates gene names
-data = data[!duplicated(rownames(data)),]
+data <- data[!duplicated(rownames(data)),]
 
 ## remove cells with less than 100 in total cohort
-celltypes_to_remove = names(table(data$label)[(table(data$label) <100)])
-data = data[,!data$label \%in\% celltypes_to_remove]
+celltypes_to_remove <- names(table(data$label)[(table(data$label) <100)])
+data <- data[,!data$label \%in\% celltypes_to_remove]
 
-true_fractions = gather_true_fractions(data)
+true_fractions <- gather_true_fractions(data)
 }

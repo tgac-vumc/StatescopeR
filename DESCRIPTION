@@ -1,10 +1,16 @@
 Package: StatescopeR
 Type: Package
 Title: Tumor-informed RNA Deconvolution
-Version: 0.1.0
-Author: Mischa Steketee
-Maintainer: Mischa Steketee <m.f.b.steketee@amsterdamumc.nl>
-Depends: R (>= 4.0)
+Version: 0.99.0
+Authors@R:
+    c(person(given = "Mischa",
+             family = "Stetketee",
+             role = c("aut", "cre"),
+             email = "m.f.b.steketee@amsterdamumc.nl",
+             comment = c(ORCID = "0000-0001-7138-7554")),
+             person(given = 'KWF',
+                    role = 'fnd'))
+Depends: R (>= 4.5.0)
 Imports: S4Vectors, SummarizedExperiment, reticulate, scRNAseq, dplyr, methods, SingleCellExperiment, matrixStats, scran, basilisk
 Suggest: scRNAseq
 Description: This package deconvolves bulk RNA into its cellular components using a scRNAseq references and optionally prior knowledge on the fraction of those components.
@@ -12,3 +18,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 StagedInstall: no
+biocViews: GeneExpression, RNASeq, SingleCell, Bayesian, Transcriptomics,  Software
+URL: https://github.com/tgac-vumc/StatescopeR 
+BugReports: https://github.com/tgac-vumc/StatescopeR/issues

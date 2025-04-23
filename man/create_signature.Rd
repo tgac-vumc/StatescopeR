@@ -21,7 +21,7 @@ Omega (variance corrected std.dev per gene per cell type)
 data <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data = data[1:100]
-data = normalize_scRNAseq(data)
-signature = create_signature(data)
+data <- data[1:100]
+data <- normalize_scRNAseq(data)
+signature <- create_signature(data)
 }

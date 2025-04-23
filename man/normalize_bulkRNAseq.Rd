@@ -20,11 +20,11 @@ SummarizedExperiment with added normalized counts
 data <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data = data[1:100]
+data <- data[1:100]
 ## Preprocess data
-data$donor = data$individual
-data$label = data$`cell type`
+data$donor <- data$individual
+data$label <- data$`cell type`
 ## Create and normalized pseudobulk from scRNAseq
-pseudobulk = generate_pseudobulk(data)
-pseudobulk_norm = normalize_bulkRNAseq(pseudobulk)
+pseudobulk <- generate_pseudobulk(data)
+pseudobulk_norm <- normalize_bulkRNAseq(pseudobulk)
 }

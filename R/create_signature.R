@@ -17,27 +17,27 @@
 #' data <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data = data[1:100]
-#' data = normalize_scRNAseq(data)
-#' signature = create_signature(data)
+#' data <- data[1:100]
+#' data <- normalize_scRNAseq(data)
+#' signature <- create_signature(data)
 create_signature <- function(data) {
   ## init Mu, Omega & Var
-  mu = DataFrame()
-  omega = DataFrame()
-  var = DataFrame()
+  mu <- DataFrame()
+  omega <- DataFrame()
+  var <- DataFrame()
 
   for (celltype in unique(data$label)){
     ## subset data on celltype
-    temp_data = data[,data$label == celltype]
+    temp_data <- data[,data$label == celltype]
     ## Calculate Mu, Omega & Var
-    ct_mu = rowMeans(as.array(logcounts(temp_data)))
-    ct_omega = rowSds(as.array(logcounts(temp_data)))
-    ct_var = rowVars(as.array(logcounts(temp_data)))
+    ct_mu <- rowMeans(as.array(logcounts(temp_data)))
+    ct_omega <- rowSds(as.array(logcounts(temp_data)))
+    ct_var <- rowVars(as.array(logcounts(temp_data)))
 
     ## Add ct Mu, Omega & var
-    mu[celltype] = ct_mu
-    omega[celltype] = ct_omega
-    var[celltype] = ct_var
+    mu[celltype] <- ct_mu
+    omega[celltype] <- ct_omega
+    var[celltype] <- ct_var
 
   }
 

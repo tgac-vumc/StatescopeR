@@ -34,14 +34,14 @@
 #' data$label <- data$`cell type`
 #'
 #' ## remove NA cells
-#' data <- data[,!is.na(data$label)]
+#' data <- data[, !is.na(data$label)]
 #'
 #' ## remove duplicates gene names
-#' data <- data[!duplicated(rownames(data)),]
+#' data <- data[!duplicated(rownames(data)), ]
 #'
 #' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove <- names(table(data$label)[(table(data$label) <100)])
-#' data <- data[,!data$label %in% celltypes_to_remove]
+#' celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
+#' data <- data[, !data$label %in% celltypes_to_remove]
 #'
 #' data <- normalize_scRNAseq(data)
 #'
@@ -64,61 +64,65 @@
 #' predicted_fractions <- fractions(Statescope)
 #'
 BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
-                      Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L,
-                      Nrep = 10L, Nrepfinal = 1000L) {
+    Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L,
+    Nrep = 10L, Nrepfinal = 1000L) {
+    ## init Mu en omega from list
+    Mu <- as.matrix(signature$mu[genes, ])
+    Omega <- as.matrix(signature$omega[genes, ])
+    bulk <- as.matrix(assay(bulk[genes, ], "normalized_counts"))
 
-  ## init Mu en omega from list
-  Mu <- as.matrix(signature$mu[genes,])
-  Omega <- as.matrix(signature$omega[genes,])
-  bulk <- as.matrix(assay(bulk[genes, ],'normalized_counts'))
+    ## start basilisk
+    setBasiliskShared(TRUE)
+    proc <- basiliskStart(deconvolution)
 
-  ## start basilisk
-  setBasiliskShared(TRUE)
-  proc <- basiliskStart(deconvolution)
+    ## Estimate fractions with BLADE using Basilisk
+    Statescope <- basiliskRun(proc,
+        fun = function(Mu, Omega,
+    bulk,
+    Alpha, Alpha0,
+    Kappa0, sY, Nrep,
+    cores, Nrepfinal) {
+            ## import OncoBLADE
+            reticulate::source_python(system.file("python/OncoBLADE.py",
+                package = "StatescopeR"
+            ))
 
-  ## Estimate fractions with BLADE using Basilisk
-  Statescope <- basiliskRun(proc, fun = function(Mu, Omega,
-                                             bulk,
-                                             Alpha, Alpha0,
-                                             Kappa0, sY, Nrep,
-                                             cores, Nrepfinal){
+            ## Run deconvolution
+            result <- Framework_Iterative(Mu, Omega,
+                bulk,
+                Alpha = Alpha, Alpha0 = Alpha0,
+                Kappa0 = Kappa0, sY = sY, Nrep = Nrep,
+                Njob = cores, IterMax = Nrepfinal
+            )
 
-      ## import OncoBLADE
-      reticulate::source_python(system.file('python/OncoBLADE.py',
-                                            package ='StatescopeR'))
+            ## make fractions Df
+            fractions <- DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
+                row.names = colnames(Mu)
+            )
+            colnames(fractions) <- colnames(bulk)
 
-      ## Run deconvolution
-      result <- Framework_Iterative(Mu, Omega,
-                               bulk,
-                               Alpha = Alpha, Alpha0= Alpha0,
-                               Kappa0 = Kappa0, sY = sY, Nrep = Nrep,
-                               Njob = cores, IterMax = Nrepfinal)
+            ## Make list from final obj of result[[1]] for use in purification
+            result[[1]] <- list(
+                "Alpha" = result[[1]]$Alpha,
+                "Beta" = result[[1]]$Beta
+            )
 
-      ## make fractions Df
-      fractions <- DataFrame(t(result[[1]]$ExpF(result[[1]]$Beta)),
-                            row.names = colnames(Mu))
-      colnames(fractions) <- colnames(bulk)
+            ## Save S4 object with Statescope and fractions slots
+            Statescope <- new("Statescope",
+                BLADE_output = result,
+                fractions = fractions
+            )
 
-      ## Make list from final obj of result[[1]] for use in purification
-      result[[1]] <- list('Alpha' = result[[1]]$Alpha,
-                         'Beta' = result[[1]]$Beta)
+            ## Remove Python object
+            BLADE_output(Statescope)[[3]] <- NULL
 
-      ## Save S4 object with Statescope and fractions slots
-      Statescope <- new('Statescope', BLADE_output = result,
-                       fractions = fractions)
+            Statescope
+        }, Mu = Mu, Omega = Omega, bulk = bulk, Alpha = Alpha, Alpha0 = Alpha0,
+        Kappa0 = Kappa0, sY = sY, Nrep = Nrep, cores = cores, Nrepfinal = Nrepfinal
+    )
 
-      ## Remove Python object
-      BLADE_output(Statescope)[[3]] <- NULL
+    ## stop basilisk
+    basiliskStop(proc)
 
-      Statescope
-
-      }, Mu=Mu, Omega=Omega, bulk=bulk, Alpha=Alpha, Alpha0=Alpha0,
-      Kappa0=Kappa0, sY=sY, Nrep=Nrep, cores= cores, Nrepfinal=Nrepfinal)
-
-  ## stop basilisk
-  basiliskStop(proc)
-
-  return(Statescope)
-
+    return(Statescope)
 }
-

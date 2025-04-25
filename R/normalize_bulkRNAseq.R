@@ -24,17 +24,16 @@
 #' pseudobulk <- generate_pseudobulk(data)
 #' pseudobulk_norm <- normalize_bulkRNAseq(pseudobulk)
 normalize_bulkRNAseq <- function(bulk) {
-  ## Normalize to cp 10k
-  bulk_norm <- DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(./sum(.)*10000)))
+    ## Normalize to cp 10k
+    bulk_norm <- DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(. / sum(.) * 10000)))
 
-  ## Add gene symbols back as rownames
-  rownames(bulk_norm) <- rownames(bulk)
+    ## Add gene symbols back as rownames
+    rownames(bulk_norm) <- rownames(bulk)
 
-  ## add normalized counts to SummarizedExperiment object
-  assay(bulk, 2) <- bulk_norm
-  assayNames(bulk)[2] <- 'normalized_counts' ## set name
+    ## add normalized counts to SummarizedExperiment object
+    assay(bulk, 2) <- bulk_norm
+    assayNames(bulk)[2] <- "normalized_counts" ## set name
 
-  ## return SummarizedExperiment with normalized bulk
-  return(bulk)
+    ## return SummarizedExperiment with normalized bulk
+    return(bulk)
 }
-

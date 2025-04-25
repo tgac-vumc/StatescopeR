@@ -61,7 +61,7 @@
 #'
 #' ## Perform Deconvolution with BLADE
 #' Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
-#' predicted_fractions <- fractions(Statescope)
+#' fractions(Statescope)
 #'
 BLADE_deconvolution <- function(signature, bulk, genes, cores = 1L,
     Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L,

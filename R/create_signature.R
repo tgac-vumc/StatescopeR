@@ -1,6 +1,6 @@
-#' Create Signature
+#' Create scRNAseq Signature
 #'
-#' \code{create_signature} Creates signature from scRNAseq data for Deconvolution
+#' \code{create_signature} Creates signature from scRNAseq data
 #'
 #'
 #' @param data SingleCellExperiment object of which to make signature

@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalize_bulkRNAseq.R
 \name{normalize_bulkRNAseq}
 \alias{normalize_bulkRNAseq}
-\title{Normalize bulkRNAseq data}
+\title{Normalize bulk RNAseq data}
 \usage{
 normalize_bulkRNAseq(bulk)
 }

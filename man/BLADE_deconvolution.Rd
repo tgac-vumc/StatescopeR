@@ -27,23 +27,24 @@ expression and mean-variance corrected variance per cell type}
 
 \item{cores}{number of cores to use for paralellization}
 
-\item{Alpha}{hyperparameter ....}
+\item{Alpha}{BLADE Hyperparameter}
 
-\item{Alpha0}{hyperparameter ....}
+\item{Alpha0}{BLADE Hyperparameter}
 
-\item{Kappa0}{hyperparameter ....}
+\item{Kappa0}{BLADE Hyperparameter}
 
-\item{sY}{hyperparameter ....}
+\item{sY}{BLADE Hyperparameter}
 
-\item{Nrep}{hyperparameter}
+\item{Nrep}{Number of BLADE initializations}
 
-\item{Nrepfinal}{hyperparameter ....}
+\item{Nrepfinal}{Number of maximum optimization iterations}
 }
 \value{
 Statescope S4 object
 }
 \description{
-\code{BLADE_deconvolution.R} Runs BLADE to estimate cell fractions from bulk mRNA
+\code{BLADE_deconvolution.R} Runs BLADE to estimate cell fractions from bulk
+mRNA
 }
 \examples{
 ## Load data

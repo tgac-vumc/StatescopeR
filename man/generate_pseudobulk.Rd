@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_pseudobulk.R
 \name{generate_pseudobulk}
 \alias{generate_pseudobulk}
-\title{Generate pseudobulk}
+\title{Generate pseudobulk from single cell RNAseq}
 \usage{
 generate_pseudobulk(data)
 }

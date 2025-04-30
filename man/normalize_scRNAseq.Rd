@@ -10,11 +10,11 @@ normalize_scRNAseq(SingleCellExperiment)
 \item{SingleCellExperiment}{object}
 }
 \value{
-SingleCellExperiment object with add normcounts and logcounts assays
+SingleCellExperiment object with added normcounts & logcounts assays
 }
 \description{
-\code{normalize_scRNAseq} adds norm and lognorm counts to your
-SingleCellExperiment object
+\code{normalize_scRNAseq} adds cp10k normalized and cp10k lognormalized
+counts to your SingleCellExperiment object
 }
 \examples{
 ## Load data

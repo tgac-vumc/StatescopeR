@@ -1,4 +1,4 @@
-#' Generate pseudobulk
+#' Generate pseudobulk from single cell RNAseq
 #'
 #' \code{generate_pseudobulk} Creates pseudobulk from raw counts of
 #' SingleCellExperiment object
@@ -30,7 +30,7 @@ generate_pseudobulk <- function(data) {
     for (sample in unique(data$donor)) {
         ## Subset data on sample
         temp_data <- data[, data$donor == sample]
-        ## sum raw counts over cells to create pseudobulk
+        ## sum raw counts over cells to create pseudobulk from sample
         temp_pseudobulk <- rowSums(as.array(counts(temp_data)))
         ## add sample to pseudobulk
         pseudobulk[sample] <- temp_pseudobulk
@@ -40,7 +40,9 @@ generate_pseudobulk <- function(data) {
     rownames(pseudobulk) <- rownames(data)
 
     ## Convert to SummarizedExperiment
-    pseudobulk <- SummarizedExperiment(assays = S4Vectors::SimpleList(counts = pseudobulk))
+    pseudobulk <- SummarizedExperiment(assays = S4Vectors::SimpleList(
+        counts = pseudobulk))
+
     ## return pseudobulk
     return(pseudobulk)
 }

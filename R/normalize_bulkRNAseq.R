@@ -1,4 +1,4 @@
-#' Normalize bulkRNAseq data
+#' Normalize bulk RNAseq data
 #'
 #' \code{normalize_bulkRNAseq} normalizes to counts per 10k
 #'
@@ -25,7 +25,8 @@
 #' pseudobulk_norm <- normalize_bulkRNAseq(pseudobulk)
 normalize_bulkRNAseq <- function(bulk) {
     ## Normalize to cp 10k
-    bulk_norm <- DataFrame(as_tibble(assay(bulk)) %>% mutate_all(funs(. / sum(.) * 10000)))
+    bulk_norm <- DataFrame(as_tibble(assay(bulk)) %>%
+        mutate_all(funs(. / sum(.) * 10000)))
 
     ## Add gene symbols back as rownames
     rownames(bulk_norm) <- rownames(bulk)

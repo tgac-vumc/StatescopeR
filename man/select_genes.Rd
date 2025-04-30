@@ -2,7 +2,7 @@
 % Please edit documentation in R/select_genes.R
 \name{select_genes}
 \alias{select_genes}
-\title{Select genes}
+\title{Select genes using AutoGeneS}
 \usage{
 select_genes(data)
 }
@@ -14,7 +14,7 @@ same as signature dataset}
 Vector of genes to use for deconvolution
 }
 \description{
-\code{select_genes.R} select genes to use for deconvolution
+\code{select_genes.R} select genes using AutoGeneS for deconvolution
 }
 \examples{
 # Load data

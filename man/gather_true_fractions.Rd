@@ -7,13 +7,15 @@
 gather_true_fractions(data)
 }
 \arguments{
-\item{data}{SingleCellExperiment object of which to gather fractions per sample}
+\item{data}{SingleCellExperiment object of which to gather
+fractions per sample}
 }
 \value{
 DataFrame with fractions of all cell types per sample
 }
 \description{
-\code{gather_true_fractions} Gathers true fractions of all cell types per sample from scRNAseq data
+\code{gather_true_fractions} Gathers true fractions of all cell types per
+sample from scRNAseq data
 }
 \examples{
 ## Load data

@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_signature.R
 \name{create_signature}
 \alias{create_signature}
-\title{Create Signature}
+\title{Create scRNAseq Signature}
 \usage{
 create_signature(data)
 }
@@ -14,7 +14,7 @@ SimpleList DataFrames for Mu (mean per gene per cell type) and
 Omega (variance corrected std.dev per gene per cell type)
 }
 \description{
-\code{create_signature} Creates signature from scRNAseq data for Deconvolution
+\code{create_signature} Creates signature from scRNAseq data
 }
 \examples{
 ## Load data

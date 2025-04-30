@@ -9,7 +9,7 @@ setMethod("BLADE_output", "Statescope", function(x) {
 #' @importFrom methods validObject
 #' @export
 setReplaceMethod("BLADE_output", "Statescope", function(x, value) {
-    x@BLADE_output <- value#[-3] ## Remove 3rd index as this is a Python pointer
+    x@BLADE_output <- value
     validObject(x)
     return(x)
 })
@@ -58,16 +58,3 @@ setReplaceMethod("states", "Statescope", function(x, value) {
     validObject(x)
     return(x)
 })
-
-## Subset operators
-
-#' @export
-setMethod("[", 'Statescope', function(x, i){
-    initialize(x, slt=x@slt[i])
-          })
-
-#' @export
-setMethod("[[", 'Statescope', function(x, i){
-    initialize(x, slt=x@slt[[i]])
-})
-

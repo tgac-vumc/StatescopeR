@@ -1,11 +1,11 @@
 #' Normalize scRNAseq data
 #'
-#' \code{normalize_scRNAseq} adds norm and lognorm counts to your
-#' SingleCellExperiment object
+#' \code{normalize_scRNAseq} adds cp10k normalized and cp10k lognormalized
+#' counts to your SingleCellExperiment object
 #'
 #' @param SingleCellExperiment object
 #'
-#' @return SingleCellExperiment object with add normcounts and logcounts assays
+#' @return SingleCellExperiment object with added normcounts & logcounts assays
 #' @import dplyr
 #' @import SingleCellExperiment
 #' @importFrom methods as
@@ -21,7 +21,9 @@
 #' data <- normalize_scRNAseq(data)
 normalize_scRNAseq <- function(SingleCellExperiment) {
     ## Calculate cp 10k
-    norm_counts <- as(as.matrix(as_tibble(as.matrix(counts(SingleCellExperiment))) %>% mutate_all(funs(. / sum(.) * 10000))), "dgCMatrix")
+    norm_counts <- as(as.matrix(as_tibble(
+        as.matrix(counts(SingleCellExperiment))) %>%
+            mutate_all(funs(. / sum(.) * 10000))), "dgCMatrix")
     rownames(norm_counts) <- rownames(SingleCellExperiment) ## add rownames back
 
     ## assign normalized and lognormalized counts

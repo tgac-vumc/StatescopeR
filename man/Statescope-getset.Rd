@@ -57,10 +57,14 @@ For the corresponding setter methods, a Statescope object is returned with modif
 }
 
 \seealso{
-\code{\link{Statescope}}
+\linkS4class{Statescope}
 }
 
 \examples{
+Statescope <- new("Statescope",
+                BLADE_output = list(NA)
+            )
+
 BLADE_output(Statescope)
 BLADE_output(Statescope) <- list(NA)
 

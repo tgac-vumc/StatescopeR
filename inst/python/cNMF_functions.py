@@ -24,7 +24,6 @@ import logging
 import random
 import logging.config
 from numpy.linalg import eigh
-#from scipy.misc import factorial
 
 #-------------------------------------------------------------------------------
 # 1 Define functions for actual cNMF
@@ -344,9 +343,17 @@ class CNMF(PyMFBase):
             self.H = np.zeros((self._num_bases, self._num_samples))
             
             # initialize using k-means
-            km = Kmeans(self.data[:,:], num_bases=self._num_bases)        
-            km.factorize(niter=10)
-            assign = km.assigned
+            km = Kmeans(self.data[:,:], num_bases=self._num_bases)
+            
+           # use basis vectors if they are pre-computed
+            if hasattr(self, 'W'):
+                km.W = self.W
+                km.factorize(niter=10, compute_w=False)
+                assign = km.assigned
+                
+            else:
+                km.factorize(niter=10)
+                assign = km.assigned
     
             num_i = np.zeros(self._num_bases)
             for i in range(self._num_bases):

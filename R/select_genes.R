@@ -1,6 +1,6 @@
-#' Select genes
+#' Select genes using AutoGeneS
 #'
-#' \code{select_genes.R} select genes to use for deconvolution
+#' \code{select_genes.R} select genes using AutoGeneS for deconvolution
 #'
 #'
 #' @param data SingleCellExperiment object to use for gene selection, should be

@@ -10,3 +10,6 @@ OncoBLADE.BiocCheck
 Python/_pycache_/
 *.rds
 *.csv
+inst/doc
+vignettes/*.html
+vignettes/*.R

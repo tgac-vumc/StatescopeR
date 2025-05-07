@@ -21,3 +21,11 @@ StagedInstall: no
 biocViews: GeneExpression, RNASeq, SingleCell, Bayesian, Transcriptomics,  Software
 URL: https://github.com/tgac-vumc/StatescopeR 
 BugReports: https://github.com/tgac-vumc/StatescopeR/issues
+Suggests: 
+    BiocStyle,
+    knitr,
+    RefManageR,
+    rmarkdown,
+    sessioninfo,
+    testthat
+VignetteBuilder: knitr

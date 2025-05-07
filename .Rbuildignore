@@ -5,3 +5,4 @@
 ^Example\.R$
 ^\Statescope\.rds$
 ^selected_genes\.csv$
+^\.github$

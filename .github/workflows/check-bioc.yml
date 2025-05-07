@@ -179,6 +179,10 @@ jobs:
           ## Required for tcltk
           brew install xquartz --cask
 
+          ## Install required system libs as noted at
+          ## https://stackoverflow.com/questions/74849057/r-cmd-check-on-github-fails-with-configure-exists-but-is-not-executable-see
+          brew install fftw
+
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         run: |

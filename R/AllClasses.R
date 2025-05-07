@@ -29,6 +29,6 @@ methods::setClass("Statescope",
 
 ## Make Python and dplyr (.) functions global for check
 utils::globalVariables(c(
-    "Framework_Iterative", "Purify_AllGenes",
-    "biggest_drop", "cNMF", "find_threshold", "."
+    "Framework_Iterative", "Purify_AllGenes", "biggest_drop",
+    "cNMF", "find_threshold", "select_k", "."
 ))

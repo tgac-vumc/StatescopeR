@@ -73,7 +73,7 @@ Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
 Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
 
 ## Discover states
-Statescope <- StateDiscovery(Statescope, 1L)
+Statescope <- StateDiscovery(Statescope)
 
 ## Look at output
 states(Statescope)

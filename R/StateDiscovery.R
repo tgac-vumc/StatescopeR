@@ -54,7 +54,7 @@
 #' Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
 #'
 #' ## Discover states
-#' Statescope <- StateDiscovery(Statescope, 1L)
+#' Statescope <- StateDiscovery(Statescope)
 #'
 #' ## Look at output
 #' states(Statescope)
@@ -79,29 +79,9 @@ StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
             data_scaled <- as.matrix(assay(ct_specific_gep(Statescope)[[ct]],
                                                                 "weighted_gep"))
             ## Run initial NMF runs for k selection
-            data_dict <- list()
-            for (k in seq(2, max_clusters)) {
-                cNMF_result <- cNMF(data_scaled, max_clusters, n_iter, Ncores)
-                H <- cNMF_result[[1]]$H
-                cluster_assignment <- list()
-                for (i in seq(ncol(H))) {
-                    cluster_assignment <- append(cluster_assignment,
-                                                which(H[, i] == max(H[, i])))}
-                data_dict[k] <- SimpleList("model" = cNMF_result[[1]],
-                                            "cophcor" = cNMF_result[[2]],
-                                            "consensus" = cNMF_result[[3]],
-                                    "cluster_assignments" = cluster_assignment)}
-            ## 1.2 Choose k
-            ks <- c()
-            cophcors <- c()
-            for (k in seq(2, max_clusters)) {
-                ks <- append(ks, k)
-                cophcors <- append(cophcors, data_dict[[k]]$cophcor)}
-            nclust <- find_threshold(cophcors, ks, min_cophenetic)
-            drop <- biggest_drop(cophcors)
-            if (!nclust) {
-                nclust <- drop}
-            ## 1.3 Run final model
+            nclust <- select_k(data_scaled, max_clusters, n_iter, Ncores,
+                                min_cophenetic)
+            ## Run final model
             final_cNMF_result <- cNMF(data_scaled, as.integer(nclust),
                                         n_final_iter, Ncores)
             final_H <- DataFrame(t(final_cNMF_result[[1]]$H))

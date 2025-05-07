@@ -77,6 +77,7 @@ def cNMF(data,k,nrun,ncores,niter=1000):
     model = models[objective.index(min(objective))]
     return model, cophcor, consensus_matrix
 
+                
 def find_threshold(cophcors,ks,min_cophenetic=0.95):
     cross = [False, False] + [((cophcors[i] < min_cophenetic) & (cophcors[i-1] >= min_cophenetic) & (cophcors[i-2] >= min_cophenetic)) for i in range(2,len(cophcors))]
     if any(cross) == False:
@@ -86,7 +87,33 @@ def find_threshold(cophcors,ks,min_cophenetic=0.95):
         diff = [abs(min_cophenetic-cophcors[last_cross-1]),min_cophenetic-cophcors[last_cross]]
         return ks[last_cross - 2 + [i for i,x in enumerate(diff) if x == min(diff)][0]]
 
+
 def biggest_drop(cophcors):
     cross = [-100] + [cophcors[i-1] - cophcors[i] for i in range(1,len(cophcors))]
     return cross.index(max(cross))-1
 
+
+def select_k(data_scaled, max_clusters, n_iter, Ncores, min_cophenetic):
+    data_dict = dict()
+    for k in range(2, max_clusters):
+        cNMF_model_k, cophcor_k, consensus_k = cNMF(data_scaled, k,  n_iter, Ncores)
+        
+        H = cNMF_model_k.H
+        cluster_assignments = [
+                int(np.where(H[:, i] == H[:, i].max())[0] + 1)
+                for i in range(H.shape[1])
+        ]
+        data_dict[k] = {
+                "model":              cNMF_model_k,
+                "cophcor":            cophcor_k,
+                "consensus":          consensus_k,
+                "cluster_assignments": cluster_assignments,
+            }
+    
+    ks         = sorted(data_dict)
+    sweep_curve = [data_dict[k]["cophcor"] for k in ks]
+    nclust      = find_threshold(sweep_curve, ks, min_cophenetic) \
+                      or biggest_drop(sweep_curve)
+        
+    return nclust    
+                

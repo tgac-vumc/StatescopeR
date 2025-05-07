@@ -179,9 +179,8 @@ jobs:
           ## Required for tcltk
           brew install xquartz --cask
 
-          ## Install required system libs as noted at
-          ## https://stackoverflow.com/questions/68088385/why-is-libcrypto-not-being-installed-when-i-install-openssl-from-source-on-macos
-          brew install cryptography
+          ## Required for h5mread
+          brew install openssl@3
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'

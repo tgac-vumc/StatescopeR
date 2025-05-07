@@ -180,8 +180,8 @@ jobs:
           brew install xquartz --cask
 
           ## Install required system libs as noted at
-          ## https://stackoverflow.com/questions/74849057/r-cmd-check-on-github-fails-with-configure-exists-but-is-not-executable-see
-          brew install fftw
+          ## https://stackoverflow.com/questions/68088385/why-is-libcrypto-not-being-installed-when-i-install-openssl-from-source-on-macos
+          brew install cryptography
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'

@@ -180,7 +180,7 @@ jobs:
           brew install xquartz --cask
 
           ## Required for scRNAseq
-          brew install openssl-devel
+          brew install openssl@3
 
           export LDFLAGS="-L/usr/local/opt/openssl@3/lib"
           export CPPFLAGS="-I/usr/local/opt/openssl@3/include"

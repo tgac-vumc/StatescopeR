@@ -4,11 +4,14 @@
 \alias{select_genes}
 \title{Select genes using AutoGeneS}
 \usage{
-select_genes(data)
+select_genes(data, fixed_n_features = NA)
 }
 \arguments{
 \item{data}{SingleCellExperiment object to use for gene selection, should be
 same as signature dataset}
+
+\item{fixed_n_features}{integer number of genes to pick with autogenes,
+default is NA which lets autogenes itself pick}
 }
 \value{
 Vector of genes to use for deconvolution

@@ -4,6 +4,8 @@
 #'
 #'
 #' @param data SingleCellExperiment object of which to make signature
+#' @param hvg_genes boolean which chooses if mu and omega should be subset to
+#' highly variable genes or not
 #'
 #' @return SimpleList DataFrames for Mu (mean per gene per cell type) and
 #' Omega (variance corrected std.dev per gene per cell type)
@@ -20,7 +22,7 @@
 #' data <- data[1:100]
 #' data <- normalize_scRNAseq(data)
 #' signature <- create_signature(data)
-create_signature <- function(data) {
+create_signature <- function(data, hvg_genes = FALSE) {
     ## init Mu, Omega & Var
     mu <- DataFrame()
     omega <- DataFrame()
@@ -45,6 +47,19 @@ create_signature <- function(data) {
     for (ct in colnames(omega)) {
         trend <- fitTrendVar(mu[, ct], omega[, ct])$trend
         new_omega[, ct] <- trend(mu[, ct])
+    }
+
+    ## subset on hvg_genes if true
+    if (hvg_genes){
+        ## calculate per gene variance
+        dec.data <- modelGeneVar(data, assay.type = "logcounts")
+
+        ## select hvg
+        hvg_genes <- getTopHVGs(dec.data, n = 3000L)
+
+        ## subset mu and omega
+        mu <- mu[hvg_genes,]
+        new_omega <- new_omega[hvg_genes,]
     }
 
     return(SimpleList(mu = mu, omega = new_omega))

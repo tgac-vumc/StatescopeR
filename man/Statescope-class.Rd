@@ -16,7 +16,7 @@ S4 class to store Statescope results
 
 \item{\code{ct_specific_gep}}{predicted cell type-specific gene expression profiles}
 
-\item{\code{states}}{cell type-specific states based on ct_specific_gep
+\item{\code{statescores}}{cell type-specific state scores based on ct_specific_gep
 per sample}
 }}
 

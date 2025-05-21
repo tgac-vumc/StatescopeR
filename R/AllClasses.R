@@ -5,7 +5,7 @@
 #' @slot BLADE_output list with all BLADE output
 #' @slot fractions predicted fraction per sample per cell type
 #' @slot ct_specific_gep predicted cell type-specific gene expression profiles
-#' @slot states cell type-specific states based on ct_specific_gep
+#' @slot statescores cell type-specific state scores based on ct_specific_gep
 #' per sample
 #' @importFrom S4Vectors DataFrame
 #' @importFrom methods setClass setGeneric setMethod

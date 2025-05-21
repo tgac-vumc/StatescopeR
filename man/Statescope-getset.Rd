@@ -2,22 +2,22 @@
 \alias{BLADE_output}
 \alias{fractions}
 \alias{ct_specific_gep}
-\alias{states}
+\alias{statescores}
 
 \alias{BLADE_output,Statescope-method}
 \alias{fractions,Statescope-method}
 \alias{ct_specific_gep,Statescope-method}
-\alias{states,Statescope-method}
+\alias{statescores,Statescope-method}
 
 \alias{BLADE_output<-}
 \alias{fractions<-}
 \alias{ct_specific_gep<-}
-\alias{states<-}
+\alias{statescores<-}
 
 \alias{BLADE_output<-,Statescope-method}
 \alias{fractions<-,Statescope-method}
 \alias{ct_specific_gep<-,Statescope-method}
-\alias{states<-,Statescope-method}
+\alias{statescores<-,Statescope-method}
 
 \title{Statescope getters/setters}
 \description{Getter/setter methods for the Statescope class.}
@@ -35,9 +35,9 @@
 
 \S4method{ct_specific_gep}{Statescope}(x) <- value
 
-\S4method{states}{Statescope}(x)
+\S4method{statescores}{Statescope}(x)
 
-\S4method{states}{Statescope}(x) <- value
+\S4method{statescores}{Statescope}(x) <- value
 }
 
 \arguments{
@@ -46,13 +46,13 @@
 }
 
 \details{
-Any \code{value} to assign to \code{BLADE_output}, \code{ct_specific_gep} and \code{states} should be lists,
+Any \code{value} to assign to \code{BLADE_output}, \code{ct_specific_gep} and \code{statescores} should be lists,
 while \code{fractions} should be a DataFrame - see \linkS4class{Statescope} for details.
 
 }
 
 \value{
-For the getter methods \code{BLADE_output}, \code{fractions}, \code{ct_specific_gep} and \code{states}, the value of the slot with the same name is returned.
+For the getter methods \code{BLADE_output}, \code{fractions}, \code{ct_specific_gep} and \code{statescores}, the value of the slot with the same name is returned.
 For the corresponding setter methods, a Statescope object is returned with modifications to the named slot.
 }
 
@@ -74,6 +74,6 @@ fractions(Statescope) <- S4Vectors::DataFrame(NA)
 ct_specific_gep(Statescope)
 ct_specific_gep(Statescope) <- list(NA)
 
-states(Statescope)
-states(Statescope) <- list(NA)
+statescores(Statescope)
+statescores(Statescope) <- list(NA)
 }

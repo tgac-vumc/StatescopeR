@@ -86,10 +86,10 @@ StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
                                         n_final_iter, Ncores)
             final_H <- DataFrame(t(final_cNMF_result[[1]]$H))
             rownames(final_H) <- colnames(fractions(Statescope))
-            ## Add result to statescores
+            ## Add result to ct lists
             statescores[ct] <- final_H}
         ## Add statescores to Statescope obj
-        statescores(Statescope) <- states
+        statescores(Statescope) <- statescores
         Statescope
     },
     Statescope = Statescope, max_clusters = max_clusters, n_iter = n_iter,

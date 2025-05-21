@@ -5,8 +5,8 @@
 #'
 #' @param data SingleCellExperiment object to use for gene selection, should be
 #' same as signature dataset
-#' @param fixed_n_features number of genes to pick with autogenes, default is NA
-#' which lets autogenes itself pick
+#' @param fixed_n_features integer number of genes to pick with autogenes,
+#' default is NA which lets autogenes itself pick
 #'
 #' @return Vector of genes to use for deconvolution
 #' @import scran basilisk reticulate

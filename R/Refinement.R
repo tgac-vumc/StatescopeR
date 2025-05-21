@@ -67,7 +67,8 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
         "outs" = BLADE_output(Statescope)[[3]])
     Mu <- as.matrix(signature$mu)
     Omega <- as.matrix(signature$omega)
-    bulk <- as.matrix(assay(bulk, "normalized_counts"))
+    genes <- rownames(Mu) # subset bulk on signature genes
+    bulk <- as.matrix(assay(bulk, "normalized_counts"))[genes,]
 
     ## start basilisk & Run Refinement
     setBasiliskShared(TRUE)

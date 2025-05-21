@@ -27,7 +27,7 @@ StateDiscovery(
 \item{Ncores}{number of cores to use for paralellization.}
 }
 \value{
-updated Statescope S4 object with states per celltype added
+updated Statescope S4 object with statescores per celltype added
 }
 \description{
 \code{StateDiscovery.R} Discovers states from refined ct-specific gep
@@ -76,6 +76,6 @@ Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
 Statescope <- StateDiscovery(Statescope)
 
 ## Look at output
-states(Statescope)
+statescores(Statescope)
 
 }

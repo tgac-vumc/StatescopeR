@@ -13,7 +13,6 @@ output:
     toc_depth: 2
     code_folding: show
 date: "`r doc_date()`"
-package: "`r pkg_ver('StatescopeR')`"
 vignette: >
   %\VignetteIndexEntry{Introduction to StatescopeR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,7 +23,8 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    ## see https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    crop = NULL 
 )
 ```
 
@@ -44,12 +44,26 @@ bib <- c(
     StatescopeR = citation("StatescopeR")[1]
 )
 ```
+# Introduction
+StatescopeR is the R version of Statescope, a computational framework designed
+to discover cell states from cell type-specific gene expression profiles
+inferred from bulk RNA profiles.
+StatescopeR works in three steps:
+1) Multi-omic single cell RNAseq reference-based deconvolution
+2) Refinement of inferred cell type-specific gene expression profiles
+3) Cell state discovery
+In addition to bulk RNA and a single cell RNAseq (scRNAseq) reference, 
+StatescopeR can also integrate prior expectations of cell fractions in the bulk
+RNA. For example tumor fractions estimated by DNA copy number analysis or immune
+cell fractions by immunohistochemistry. Below is a manual for running
+StatescopeR with some pancreas scRNAseq data used for both the reference and 
+pseudobulk which is deconvolved.
 
-# Basics
+# Running StatescopeR
 
-## Install `StatescopeR`
-
-`StatescopeR is available through Bioconductor, install it using the following commands in R:`
+## Installation
+StatescopeR is available through Bioconductor, install it using the following
+commands in R:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -62,17 +76,140 @@ BiocManager::install("StatescopeR")
 BiocManager::valid()
 ```
 
-## Required knowledge
+## Prepare scRNAseq data
+After the package is installed, we will be loading it and the scRNAseq package,
+from which we will use the SegerstolpePancreas data set for our example. 
+We will use it for two purposes:
+1) Creating a scRNAseq reference, as you would do for your own application.
+2) Creating pseudobulk to be deconvolved, which we can conveniently use for
+evaluation as well. In your own application this would likely be bulk mRNA 
+sequencing.
 
-`r Biocpkg("StatescopeR")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with RNA-seq data (EDIT!). That is, packages like `r Biocpkg("SummarizedExperiment")` (EDIT!).
+```{r 'Prepare scRNAseq data'}
+## Load StatescopeR & scRNAseq (for example data)
+suppressMessages(library(StatescopeR))
+suppressMessages(library(scRNAseq))
 
-If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
+## Load SegerstolpePancreas data set
+scRNAseq <- SegerstolpePancreasData()
+scRNAseq$donor = scRNAseq$individual
+scRNAseq$label = scRNAseq$`cell type`
 
-## Asking for help
+## remove cells with no cell type label
+scRNAseq = scRNAseq[,!is.na(scRNAseq$label)]
 
-As package developers, we try to explain clearly how to use our packages and in which order to use the functions. But `R` and `Bioconductor` have a steep learning curve so it is critical to learn where to ask for help. The blog post quoted above mentions some but we would like to highlight the [Bioconductor support site](https://support.bioconductor.org/) as the main resource for getting help: remember to use the `StatescopeR` tag and check [the older posts](https://support.bioconductor.org/tag/StatescopeR/). Other alternatives are available such as creating GitHub issues and tweeting. However, please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.
+## remove duplicate genes
+scRNAseq = scRNAseq[!duplicated(rownames(scRNAseq)),]
 
-## Citing `StatescopeR`
+## remove very rare cell types (<100 cells in total data set)
+celltypes_to_remove = names(table(scRNAseq$label)[(table(scRNAseq$label) <100)])
+scRNAseq = scRNAseq[,!scRNAseq$label %in% celltypes_to_remove]
+    
+```
+## Prepare StatescopeR input
+StatescopeR takes the following inputs:
+1) scRNAseq reference/signature
+2) bulk mRNA to be deconvolved
+3) selected genes for deconvolution
+(optional) Prior expectation of fractions (advanced use)
+(optional) Hyperparameters (i.e. cores for parallelization, nrepfinal for
+maximum number of optimization iteration etc.)
+
+```{r 'Prepare StatescopeR input'}
+## Normalize (cp10k) and logtransform scRNAseq
+scRNAseq = normalize_scRNAseq(scRNAseq)
+
+## Create scRNAseq reference/signature
+signature = create_signature(scRNAseq, hvg_genes = TRUE)
+
+## select subset of genes for deconvolution
+selected_genes = select_genes(scRNAseq, 200L) # 200 genes to make it quick
+
+## Create pseudobulk and also lognormalize
+pseudobulk = generate_pseudobulk(scRNAseq)
+pseudobulk = normalize_bulkRNAseq(pseudobulk)
+
+## Create expectation
+
+```
+
+## Run StatescopeR
+Now that all inputs have been prepared you can deconvolve the (pseudo)bulk mRNA 
+and discovery transcriptional states.
+
+```{r 'Run StatescopeR'}
+## Run Deconvolution module
+Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes,
+                                 cores =5L)
+
+## Run Refinement module
+Statescope = Refinement(Statescope, signature, pseudobulk, cores =5L)
+
+## Run State Discovery module
+Statescope = StateDiscovery(Statescope, Ncores = 5L, max_clusters = 5L)
+```
+
+## Evaluate Statescope
+As we used pseudobulk from scRNAseq in this manual we are able to check if the
+output of StatescopeR is correct.
+
+```{r 'Evaluate Statescope'}
+## Count fractions of cells per sample in the pseudobulk
+true_fractions = gather_true_fractions(scRNAseq)
+
+## Plot Correlation with true fractions
+## measure ct correlation
+cors = list()
+for (ct in unique(rownames(true_fractions))){
+  cor = cor(as.matrix(true_fractions)[ct,], as.matrix(fractions(Statescope))[ct,])
+
+ ## add cor to cors
+ cors[ct]= cor
+
+}
+
+## calc median correlation
+median(unlist(cors))
+
+
+## Plot RMSE with true fractions
+
+```
+
+## Downstream analysis/visualizations
+After you have run Statescope you can do all kinds of analyses, here we show 
+some visualizations to give you an idea, but feel free to try whatever comes to
+your mind.
+
+```{r 'Downstream analysis/visualizations'}
+## Show predicted fractions
+fractions(Statescope)
+
+## Show predicted cell type specific gene expression profiles
+ct_specific_gep(Statescope)$`ductal cell`
+
+## Show State scores per sample
+statescores(Statescope)
+
+## Show State loadings
+
+
+
+
+```
+
+## Group expectations
+If you have an expected fraction for a group of cell types instead of for one 
+specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also 
+allows you to give a group prior.
+
+```{r 'Advanced use'}
+## Create group expectation
+
+
+```
+
+# Citing `StatescopeR`
 
 We hope that `r Biocpkg("StatescopeR")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
 
@@ -81,17 +218,6 @@ We hope that `r Biocpkg("StatescopeR")` will be useful for your research. Please
 citation("StatescopeR")
 ```
 
-# Quick start to using `StatescopeR`
-
-```{r "start", message=FALSE}
-library("StatescopeR")
-```
-
-Edit this as you see fit =)
-
-Here is an example of you can cite your package inside the vignette:
-
--   `r Biocpkg("StatescopeR")` `r Citep(bib[["StatescopeR"]])`
 
 # Reproducibility
 
@@ -112,17 +238,6 @@ This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
 ```{r reproduce3, echo=FALSE}
 ## Session info
 library("sessioninfo")
-options(width = 120)
+options(width = 80)
 session_info()
-```
-
-# Bibliography
-
-This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])` with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
-
-Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
-
-```{r vignetteBiblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
-## Print bibliography
-PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
 ```

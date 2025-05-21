@@ -18,7 +18,7 @@ setReplaceMethod("BLADE_output", "Statescope", function(x, value) {
 #' @export
 setMethod("fractions", "Statescope", function(x) {
     output <- x@fractions
-    return(fractions)
+    return(output)
 })
 
 #' @importFrom methods validObject

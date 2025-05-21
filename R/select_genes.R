@@ -5,6 +5,8 @@
 #'
 #' @param data SingleCellExperiment object to use for gene selection, should be
 #' same as signature dataset
+#' @param fixed_n_features number of genes to pick with autogenes, default is NA
+#' which lets autogenes itself pick
 #'
 #' @return Vector of genes to use for deconvolution
 #' @import scran basilisk reticulate
@@ -30,13 +32,13 @@
 #' data <- data[, !data$label %in% celltypes_to_remove]
 #' data <- normalize_scRNAseq(data)
 #' selected_genes <- select_genes(data)
-select_genes <- function(data) {
+select_genes <- function(data, fixed_n_features = NA) {
     ## First select hvg
     ## calculate per gene variance
     dec.data <- modelGeneVar(data, assay.type = "logcounts")
 
     ## select hvg
-    hvg_genes <- getTopHVGs(dec.data, n = 4000L)
+    hvg_genes <- getTopHVGs(dec.data, n = 3000L)
 
     ## init centroids df
     centroids <- data.frame(row.names = hvg_genes)
@@ -53,18 +55,25 @@ select_genes <- function(data) {
 
     ## Select genes with AutoGeneS using Basilisk
     selected_genes <- basiliskRun(proc, fun = function(centroids, ngen, seed,
-    offspring_size) {
+    offspring_size, fixed_n_features) {
         ## import autogenes
         ag <- reticulate::import("autogenes")
         ag$init(t(centroids))
+        if (is.na(fixed_n_features)){
         ag$optimize(
             ngen = ngen, seed = seed, offspring_size = offspring_size,
-            verbose = FALSE
-        )
+            verbose = FALSE)
+        }else{
+            ag$optimize(
+                ngen = ngen, nfeatures = fixed_n_features, seed = seed,
+                mode = 'fixed', offspring_size = offspring_size,
+                verbose = FALSE)
+        }
         index <- ag$select(index = 0L)
         selected_genes <- rownames(centroids)[index]
         selected_genes
-    }, centroids = centroids, ngen = 5000L, seed = 42L, offspring_size = 100L)
+    }, centroids = centroids, ngen = 5000L, seed = 42L, offspring_size = 100L,
+    fixed_n_features = fixed_n_features)
 
     ## stop basilisk
     basiliskStop(proc)

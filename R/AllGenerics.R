@@ -21,7 +21,7 @@ setGeneric("ct_specific_gep<-",
                         function(x, value) standardGeneric("ct_specific_gep<-"))
 
 #' @export
-setGeneric("states", function(x) standardGeneric("states"))
+setGeneric("statescores", function(x) standardGeneric("statescores"))
 
 #' @export
-setGeneric("states<-", function(x, value) standardGeneric("states<-"))
+setGeneric("statescores<-", function(x, value) standardGeneric("statescores<-"))

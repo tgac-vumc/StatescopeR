@@ -16,13 +16,13 @@ methods::setClass("Statescope",
         BLADE_output = "list",
         fractions = "DataFrame",
         ct_specific_gep = "list",
-        states = "list"
+        statescores = "list"
     ),
     prototype = list(
         BLADE_output = list(NA),
         fractions = S4Vectors::DataFrame(NA),
         ct_specific_gep = list(NA),
-        states = list(NA)
+        statescores = list(NA)
     )
 )
 

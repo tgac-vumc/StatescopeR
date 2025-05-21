@@ -46,15 +46,15 @@ setReplaceMethod("ct_specific_gep", "Statescope", function(x, value) {
 
 
 #' @export
-setMethod("states", "Statescope", function(x) {
-    output <- x@states
+setMethod("statescores", "Statescope", function(x) {
+    output <- x@statescores
     return(output)
 })
 
 #' @importFrom methods validObject
 #' @export
-setReplaceMethod("states", "Statescope", function(x, value) {
-    x@states <- value
+setReplaceMethod("statescores", "Statescope", function(x, value) {
+    x@statescores <- value
     validObject(x)
     return(x)
 })

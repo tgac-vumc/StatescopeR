@@ -9,7 +9,7 @@
 #' @param n_final_iter Number of final cNMF restarts.
 #' @param min_cophenetic Minimum cophenetic coefficient to determine K.
 #'
-#' @return updated Statescope S4 object with states per celltype added
+#' @return updated Statescope S4 object with statescores per celltype added
 #' @import reticulate basilisk
 #' @export
 #'
@@ -57,7 +57,7 @@
 #' Statescope <- StateDiscovery(Statescope)
 #'
 #' ## Look at output
-#' states(Statescope)
+#' statescores(Statescope)
 #'
 StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
     n_final_iter = 100L, min_cophenetic = 0.9, Ncores = 1L) {
@@ -73,7 +73,7 @@ StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
             package = "StatescopeR"))
 
         ## perform state discovery per cell type
-        states <- list()
+        statescores <- list()
         for (ct in names(ct_specific_gep(Statescope))) {
             ## get ct_specific_gep for state clustering
             data_scaled <- as.matrix(assay(ct_specific_gep(Statescope)[[ct]],
@@ -86,10 +86,10 @@ StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
                                         n_final_iter, Ncores)
             final_H <- DataFrame(t(final_cNMF_result[[1]]$H))
             rownames(final_H) <- colnames(fractions(Statescope))
-            ## Add result to states
-            states[ct] <- final_H}
-        ## Add states to Statescope obj
-        states(Statescope) <- states
+            ## Add result to statescores
+            statescores[ct] <- final_H}
+        ## Add statescores to Statescope obj
+        statescores(Statescope) <- states
         Statescope
     },
     Statescope = Statescope, max_clusters = max_clusters, n_iter = n_iter,

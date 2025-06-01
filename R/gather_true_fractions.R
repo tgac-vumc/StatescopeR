@@ -40,7 +40,7 @@ gather_true_fractions <- function(data) {
     for (sample in unique(colData(data)$donor)) {
         temp_data <- data[, colData(data)$donor == sample]
         temp_true_fractions <- DataFrame(table(temp_data$label) /
-                                                                ncol(temp_data))
+            ncol(temp_data))
 
         ## add True_fractions of sample to list
         true_fractions[sample] <- list(temp_true_fractions$Freq)

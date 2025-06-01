@@ -22,8 +22,9 @@
 normalize_scRNAseq <- function(SingleCellExperiment) {
     ## Calculate cp 10k
     norm_counts <- as(as.matrix(as_tibble(
-        as.matrix(counts(SingleCellExperiment))) %>%
-            mutate_all(funs(. / sum(.) * 10000))), "dgCMatrix")
+        as.matrix(counts(SingleCellExperiment))
+    ) %>%
+        mutate_all(funs(. / sum(.) * 10000))), "dgCMatrix")
     rownames(norm_counts) <- rownames(SingleCellExperiment) ## add rownames back
 
     ## assign normalized and lognormalized counts

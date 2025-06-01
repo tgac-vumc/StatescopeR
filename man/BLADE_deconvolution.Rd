@@ -8,6 +8,7 @@ BLADE_deconvolution(
   signature,
   bulk,
   genes,
+  prior = NULL,
   cores = 1L,
   Alpha = 1L,
   Alpha0 = 1000L,
@@ -18,12 +19,16 @@ BLADE_deconvolution(
 )
 }
 \arguments{
-\item{signature}{SimpleList with mu and sigma, respectively mean gene
-expression and mean-variance corrected variance per cell type}
+\item{signature}{SimpleList with mu and sigma, both nGene x nCelltype
+dataframes, respectively mean gene expression and mean-variance corrected
+variance per cell type}
 
-\item{bulk}{mRNA to be deconvolved}
+\item{bulk}{nSample x nGene mRNA to be deconvolved}
 
 \item{genes}{subset of genes to be used for deconvolution}
+
+\item{prior}{(optional) nSample x nCelltype matrix with prior fraction
+expectations}
 
 \item{cores}{number of cores to use for paralellization}
 
@@ -47,43 +52,51 @@ Statescope S4 object
 mRNA
 }
 \examples{
-## Load data
-data <- scRNAseq::SegerstolpePancreasData()
+## Load scRNAseq
+scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data <- data[1:100]
-## Preprocess data
-data$donor <- data$individual
-data$label <- data$`cell type`
+scRNAseq <- scRNAseq[1:100]
+## Preprocess scRNAseq
+scRNAseq$donor <- scRNAseq$individual
+scRNAseq$label <- scRNAseq$`cell type`
 
 ## remove NA cells
-data <- data[, !is.na(data$label)]
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
 ## remove duplicates gene names
-data <- data[!duplicated(rownames(data)), ]
+scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
 ## remove cells with less than 100 in total cohort
-celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
-data <- data[, !data$label \%in\% celltypes_to_remove]
+celltypes_to_remove <-
+    names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
+scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
 
-data <- normalize_scRNAseq(data)
+scRNAseq <- normalize_scRNAseq(scRNAseq)
 
 ## Create and normalized pseudobulk from scRNAseq
-pseudobulk <- generate_pseudobulk(data)
+pseudobulk <- generate_pseudobulk(scRNAseq)
 
 pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
-## Measure true cell fractions from pseudobulk
-true_fractions <- gather_true_fractions(data)
-
 ## Create signature from scRNAseq for deconvolution
-signature <- create_signature(data)
+signature <- create_signature(scRNAseq)
 
 ## Select genes optimized for deconvolution
-selected_genes <- select_genes(data)
+selected_genes <- select_genes(scRNAseq)
+
+## Optionally create prior expectation
+prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
+prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
+
+## Tranpose it to nSample x nCelltype
+prior <- t(prior)
 
 ## Perform Deconvolution with BLADE
-Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+Statescope <- BLADE_deconvolution(
+    signature, pseudobulk, selected_genes,
+    prior, 1L
+)
 fractions(Statescope)
 
 }

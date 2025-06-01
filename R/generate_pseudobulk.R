@@ -41,7 +41,8 @@ generate_pseudobulk <- function(data) {
 
     ## Convert to SummarizedExperiment
     pseudobulk <- SummarizedExperiment(assays = S4Vectors::SimpleList(
-        counts = pseudobulk))
+        counts = pseudobulk
+    ))
 
     ## return pseudobulk
     return(pseudobulk)

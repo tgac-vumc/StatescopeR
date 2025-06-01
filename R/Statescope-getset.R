@@ -58,3 +58,18 @@ setReplaceMethod("statescores", "Statescope", function(x, value) {
     validObject(x)
     return(x)
 })
+
+
+#' @export
+setMethod("stateloadings", "Statescope", function(x) {
+    output <- x@stateloadings
+    return(output)
+})
+
+#' @importFrom methods validObject
+#' @export
+setReplaceMethod("stateloadings", "Statescope", function(x, value) {
+    x@stateloadings <- value
+    validObject(x)
+    return(x)
+})

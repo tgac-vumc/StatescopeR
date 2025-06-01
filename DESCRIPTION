@@ -11,7 +11,7 @@ Authors@R:
              person(given = 'KWF',
                     role = 'fnd'))
 Depends: R (>= 4.5.0)
-Imports: S4Vectors, SummarizedExperiment, reticulate, scRNAseq, dplyr, methods, SingleCellExperiment, matrixStats, scran, basilisk
+Imports: S4Vectors, SummarizedExperiment, reticulate, scRNAseq, dplyr, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot
 Suggest: scRNAseq
 Description: This package deconvolves bulk RNA into its cellular components using a scRNAseq references and optionally prior knowledge on the fraction of those components.
 License: MIT + file LICENSE
@@ -27,5 +27,6 @@ Suggests:
     RefManageR,
     rmarkdown,
     sessioninfo,
-    testthat
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -7,6 +7,8 @@
 #' @slot ct_specific_gep predicted cell type-specific gene expression profiles
 #' @slot statescores cell type-specific state scores based on ct_specific_gep
 #' per sample
+#' @slot stateloadings cell type-specific state loadings based on
+#' ct_specific_gep per sample
 #' @importFrom S4Vectors DataFrame
 #' @importFrom methods setClass setGeneric setMethod
 #' @importFrom utils globalVariables
@@ -16,13 +18,15 @@ methods::setClass("Statescope",
         BLADE_output = "list",
         fractions = "DataFrame",
         ct_specific_gep = "list",
-        statescores = "list"
+        statescores = "list",
+        stateloadings = "list"
     ),
     prototype = list(
         BLADE_output = list(NA),
         fractions = S4Vectors::DataFrame(NA),
         ct_specific_gep = list(NA),
-        statescores = list(NA)
+        statescores = list(NA),
+        stateloadings = list(NA)
     )
 )
 
@@ -30,5 +34,6 @@ methods::setClass("Statescope",
 ## Make Python and dplyr (.) functions global for check
 utils::globalVariables(c(
     "Framework_Iterative", "Purify_AllGenes", "biggest_drop",
-    "cNMF", "find_threshold", "select_k", "."
+    "cNMF", "find_threshold", "select_k", ".",
+    'RMSE', 'celltype', 'correlation', 'gene', 'score'
 ))

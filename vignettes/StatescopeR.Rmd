@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
     ## see https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
-    crop = NULL 
+    crop = NULL
 )
 ```
 
@@ -67,8 +67,8 @@ commands in R:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-      install.packages("BiocManager")
-  }
+    install.packages("BiocManager")
+}
 
 BiocManager::install("StatescopeR")
 
@@ -92,45 +92,47 @@ suppressMessages(library(scRNAseq))
 
 ## Load SegerstolpePancreas data set
 scRNAseq <- SegerstolpePancreasData()
-scRNAseq$donor = scRNAseq$individual
-scRNAseq$label = scRNAseq$`cell type`
+scRNAseq$donor <- scRNAseq$individual
+scRNAseq$label <- scRNAseq$`cell type`
 
 ## remove cells with no cell type label
-scRNAseq = scRNAseq[,!is.na(scRNAseq$label)]
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
 ## remove duplicate genes
-scRNAseq = scRNAseq[!duplicated(rownames(scRNAseq)),]
+scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
 ## remove very rare cell types (<100 cells in total data set)
-celltypes_to_remove = names(table(scRNAseq$label)[(table(scRNAseq$label) <100)])
-scRNAseq = scRNAseq[,!scRNAseq$label %in% celltypes_to_remove]
-    
+celltypes_to_remove <- 
+    names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
+scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 ```
 ## Prepare StatescopeR input
 StatescopeR takes the following inputs:
 1) scRNAseq reference/signature
 2) bulk mRNA to be deconvolved
 3) selected genes for deconvolution
-(optional) Prior expectation of fractions (advanced use)
+(optional) Prior expectation of fractions
 (optional) Hyperparameters (i.e. cores for parallelization, nrepfinal for
 maximum number of optimization iteration etc.)
 
 ```{r 'Prepare StatescopeR input'}
 ## Normalize (cp10k) and logtransform scRNAseq
-scRNAseq = normalize_scRNAseq(scRNAseq)
+scRNAseq <- normalize_scRNAseq(scRNAseq)
 
 ## Create scRNAseq reference/signature
-signature = create_signature(scRNAseq, hvg_genes = TRUE)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE)
 
 ## select subset of genes for deconvolution
-selected_genes = select_genes(scRNAseq, 200L) # 200 genes to make it quick
+selected_genes <- select_genes(scRNAseq, 200L) # 200 genes to make it quick
 
 ## Create pseudobulk and also lognormalize
-pseudobulk = generate_pseudobulk(scRNAseq)
-pseudobulk = normalize_bulkRNAseq(pseudobulk)
+pseudobulk <- generate_pseudobulk(scRNAseq)
+pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
-## Create expectation
-
+## (optional) Create prior expectation
+prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
+prior[rownames(prior) != "ductal cell", ] <- NA #Keep only ductal cells as prior
+prior <- t(prior) # Tranpose it to nSample x nCelltype
 ```
 
 ## Run StatescopeR
@@ -139,14 +141,15 @@ and discovery transcriptional states.
 
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
-Statescope = BLADE_deconvolution(signature, pseudobulk, selected_genes,
-                                 cores =5L)
+Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
+    cores = 1L
+)
 
 ## Run Refinement module
-Statescope = Refinement(Statescope, signature, pseudobulk, cores =5L)
+Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 1L)
 
 ## Run State Discovery module
-Statescope = StateDiscovery(Statescope, Ncores = 5L, max_clusters = 5L)
+Statescope <- StateDiscovery(Statescope, Ncores = 1L, max_clusters = 4L)
 ```
 
 ## Evaluate Statescope
@@ -155,25 +158,10 @@ output of StatescopeR is correct.
 
 ```{r 'Evaluate Statescope'}
 ## Count fractions of cells per sample in the pseudobulk
-true_fractions = gather_true_fractions(scRNAseq)
+true_fractions <- gather_true_fractions(scRNAseq)
 
-## Plot Correlation with true fractions
-## measure ct correlation
-cors = list()
-for (ct in unique(rownames(true_fractions))){
-  cor = cor(as.matrix(true_fractions)[ct,], as.matrix(fractions(Statescope))[ct,])
-
- ## add cor to cors
- cors[ct]= cor
-
-}
-
-## calc median correlation
-median(unlist(cors))
-
-
-## Plot RMSE with true fractions
-
+## Plot correlation and RMSE with true fractions per celltype
+fraction_eval(Statescope, true_fractions)
 ```
 
 ## Downstream analysis/visualizations
@@ -185,33 +173,84 @@ your mind.
 ## Show predicted fractions
 fractions(Statescope)
 
-## Show predicted cell type specific gene expression profiles
-ct_specific_gep(Statescope)$`ductal cell`
+## Show predicted ductal cell type specific gene expression profiles
+assay(ct_specific_gep(Statescope)$`ductal cell`, "weighted_gep")
 
-## Show State scores per sample
-statescores(Statescope)
+## Show ductal cell state scores per sample
+statescores(Statescope)$`ductal cell`
 
-## Show State loadings
+## Show ductal cell state loadings
+stateloadings(Statescope)$`ductal cell`
 
+## Plot heatmap of fractions
+fraction_heatmap(Statescope)
 
-
-
+## Plot barplot of top loadings
+barplot_stateloadings(Statescope)
 ```
 
 ## Group expectations
 If you have an expected fraction for a group of cell types instead of for one 
 specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also 
-allows you to give a group prior.
+allows you to give a group prior. Here we show an example where we know the 
+expected fraction of the pancreatic islet cells (alpha, beta, delta & 
+gamma cells) in together, but not their individual contributions.
 
-```{r 'Advanced use'}
-## Create group expectation
+```{r 'Group expectations'}
+## define cell types in one group
+grouped_cts <- c("alpha cell", "beta cell", "delta cell", "gamma cell")
+
+## init groups with 0
+group <- matrix(0,
+    nrow = length(rownames(true_fractions)) - (length(grouped_cts) - 1),
+    ncol = length(rownames(true_fractions)),
+    dimnames = list(
+        c("Group", setdiff(
+            rownames(true_fractions), grouped_cts
+        )),
+        rownames(true_fractions)
+    )
+)
 
 
+## init prior
+prior <- matrix(nrow = ncol(pseudobulk), ncol = length(rownames(true_fractions))
+                -(length(grouped_cts) - 1), dimnames = list(
+    colnames(pseudobulk),
+    c("Group", setdiff(rownames(true_fractions), grouped_cts))
+))
+
+
+## Assign celltypes to groups
+for (ct in colnames(group)) {
+    if (ct %in% grouped_cts) {
+        ## add group membership
+        group["Group", ct] <- 1
+    } else {
+        group[ct, ct] <- 1
+    }
+}
+
+## Add grouped prior fractions to prior
+prior[, "Group"] <- colSums(as.matrix(true_fractions[grouped_cts, ]))
+
+
+## init group prior
+group_prior <- list("Group" = group, "Expectation" = prior)
+
+## Now you can just run Statescope as with a normal prior. Note we do not give
+## a ductal cell prior this time
+Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes,
+    group_prior,
+    cores = 1L
+)
 ```
 
 # Citing `StatescopeR`
 
-We hope that `r Biocpkg("StatescopeR")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
+We hope that `r Biocpkg("StatescopeR")` will be useful for your research.
+Please use the following information to cite the package and the overall
+approach. Thank you!
 
 ```{r "citation"}
 ## Citation info
@@ -221,7 +260,8 @@ citation("StatescopeR")
 
 # Reproducibility
 
-The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])` was made possible thanks to:
+The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])`
+was made possible thanks to:
 
 -   R `r Citep(bib[["R"]])`
 -   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`

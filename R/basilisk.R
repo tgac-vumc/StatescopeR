@@ -4,7 +4,7 @@ autogenes <- BasiliskEnvironment(
     pkgname = "StatescopeR",
     packages = c(
         "autogenes==1.0.4",
-        "python==3.6", #https://github.com/theislab/AutoGeneS/issues/27
+        "python==3.6", # https://github.com/theislab/AutoGeneS/issues/27
         "pandas==1.1.5", "anndata==0.7.8",
         "numpy==1.19.5", "dill==0.3.4",
         "deap==1.4.1", "scipy==1.5.4",
@@ -12,7 +12,7 @@ autogenes <- BasiliskEnvironment(
         "scikit-learn==0.24.2",
         "matplotlib==3.3.4"
     ),
-    channels = c('anaconda', "bioconda", "conda-forge")
+    channels = c("anaconda", "bioconda", "conda-forge")
 )
 
 deconvolution <- BasiliskEnvironment(

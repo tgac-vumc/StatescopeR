@@ -18,5 +18,8 @@ S4 class to store Statescope results
 
 \item{\code{statescores}}{cell type-specific state scores based on ct_specific_gep
 per sample}
+
+\item{\code{stateloadings}}{cell type-specific state loadings based on
+ct_specific_gep per sample}
 }}
 

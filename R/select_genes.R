@@ -54,30 +54,28 @@ select_genes <- function(data, fixed_n_features = NA) {
     proc <- basiliskStart(autogenes, testload = c("autogenes"))
 
     ## Select genes with AutoGeneS using Basilisk
-    selected_genes <- basiliskRun(proc, fun = function(centroids, ngen, seed,
-    offspring_size, fixed_n_features) {
-        ## import autogenes
-        ag <- reticulate::import("autogenes")
-        ag$init(t(centroids))
-        if (is.na(fixed_n_features)){
-        ag$optimize(
-            ngen = ngen, seed = seed, offspring_size = offspring_size,
-            verbose = FALSE)
-        }else{
-            ag$optimize(
-                ngen = ngen, nfeatures = fixed_n_features, seed = seed,
-                mode = 'fixed', offspring_size = offspring_size,
-                verbose = FALSE)
-        }
-        index <- ag$select(index = 0L)
-        selected_genes <- rownames(centroids)[index]
-        selected_genes
-    }, centroids = centroids, ngen = 5000L, seed = 42L, offspring_size = 100L,
-    fixed_n_features = fixed_n_features)
+    selected_genes <- basiliskRun(proc, fun = function( centroids, ngen, seed,
+        offspring_size, fixed_n_features) {
+            ## import autogenes
+            ag <- reticulate::import("autogenes")
+            ag$init(t(centroids))
+            if (is.na(fixed_n_features)) {
+                ag$optimize(ngen = ngen, seed = seed,
+                            offspring_size = offspring_size, verbose = FALSE)
+            } else {
+                ag$optimize(
+                    ngen = ngen, nfeatures = fixed_n_features, seed = seed,
+                    mode = "fixed", offspring_size = offspring_size,
+                    verbose = FALSE)
+            }
+            index <- ag$select(index = 0L)
+            selected_genes <- rownames(centroids)[index]
+            selected_genes
+        }, centroids = centroids, ngen = 5000L, seed = 42L,
+        offspring_size = 100L, fixed_n_features = fixed_n_features)
 
     ## stop basilisk
     basiliskStop(proc)
-
 
     return(selected_genes)
 }

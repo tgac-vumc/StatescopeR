@@ -22,91 +22,97 @@
 #' @export
 #'
 #' @examples
-#' ## Load data
-#' data <- scRNAseq::SegerstolpePancreasData()
+#' ## Load scRNAseq
+#' scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data <- data[1:100]
-#' ## Preprocess data
-#' data$donor <- data$individual
-#' data$label <- data$`cell type`
+#' scRNAseq <- scRNAseq[1:100]
+#' ## Preprocess scRNAseq
+#' scRNAseq$donor <- scRNAseq$individual
+#' scRNAseq$label <- scRNAseq$`cell type`
 #'
 #' ## remove NA cells
-#' data <- data[, !is.na(data$label)]
+#' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 #'
 #' ## remove duplicates gene names
-#' data <- data[!duplicated(rownames(data)), ]
+#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
-#' data <- data[, !data$label %in% celltypes_to_remove]
+#' celltypes_to_remove <-
+#'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
+#' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 #'
-#' data <- normalize_scRNAseq(data)
+#' scRNAseq <- normalize_scRNAseq(scRNAseq)
 #'
 #' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk <- generate_pseudobulk(data)
+#' pseudobulk <- generate_pseudobulk(scRNAseq)
 #'
 #' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 #'
-#' ## Measure true cell fractions from pseudobulk
-#' true_fractions <- gather_true_fractions(data)
-#'
 #' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(data)
+#' signature <- create_signature(scRNAseq)
 #'
 #' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(data)
+#' selected_genes <- select_genes(scRNAseq)
+#'
+#' ## Optionally create prior expectation
+#' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
+#' prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
+#'
+#' ## Tranpose it to nSample x nCelltype
+#' prior <- t(prior)
 #'
 #' ## Perform Deconvolution with BLADE
-#' Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, 1L)
+#' Statescope <- BLADE_deconvolution(
+#'     signature, pseudobulk, selected_genes,
+#'     prior, 1L
+#' )
 #' Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
 #' ct_specific_gep(Statescope)
 Refinement <- function(Statescope, signature, bulk, cores = 1L) {
     ## Prepare Refinement input
     BLADE_obj <- list("final_obj" = BLADE_output(Statescope)[[1]],
-        "outs" = BLADE_output(Statescope)[[3]])
+                        "outs" = BLADE_output(Statescope)[[3]])
     Mu <- as.matrix(signature$mu)
     Omega <- as.matrix(signature$omega)
     genes <- rownames(Mu) # subset bulk on signature genes
-    bulk <- as.matrix(assay(bulk, "normalized_counts"))[genes,]
+    bulk <- as.matrix(assay(bulk, "normalized_counts"))[genes, ]
 
     ## start basilisk & Run Refinement
     setBasiliskShared(TRUE)
     proc <- basiliskStart(deconvolution)
     Statescope <- basiliskRun(proc, fun = function(BLADE_obj, Mu, Omega, bulk,
-                                                    cores) {
-        ## import BLADE
-        reticulate::source_python(system.file("python/BLADE.py",
-            package = "StatescopeR"))
+                                cores) {
+            ## import BLADE
+            reticulate::source_python(system.file("python/BLADE.py",
+                package = "StatescopeR"))
+            ## Run refinement
+            result <- Purify_AllGenes(BLADE_obj, Mu, Omega, bulk, cores)
 
-        ## Run refinement
-        result <- Purify_AllGenes(BLADE_obj, Mu, Omega, bulk, cores)
+            ## update BLADE results
+            BLADE_output(Statescope) <- result
 
-        ## update BLADE results
-        BLADE_output(Statescope) <- result
-
-        ## Gather ct specific gep
-        ct_specific_gep <- list()
-        for (i in seq_along(colnames(signature$mu))) {
-            temp_gep <- t(result[[1]]$Nu[, , i])
-            ## Weight by Omega
-            omega_weighted_gep <- (temp_gep - colMeans(temp_gep)) *
-                result[[1]]$Omega[, i]
-
-            ## Name samples and genes
-            omega_weighted_gep_df <- DataFrame(omega_weighted_gep)
-            colnames(omega_weighted_gep_df) <- colnames(bulk)
-            rownames(omega_weighted_gep_df) <- rownames(bulk)
-
-            ## add to ct_specific_gep list
-            ct_specific_gep[colnames(signature$mu)[i]] <- SummarizedExperiment(
-                assays = SimpleList(weighted_gep = omega_weighted_gep_df))}
-
-        ## Add cell type specific gene expression to Statescope obj
-        ct_specific_gep(Statescope) <- ct_specific_gep
-        Statescope
-    }, BLADE_obj = BLADE_obj, Mu = Mu, Omega = Omega, bulk = bulk,
-                                                                cores = cores)
+            ## Gather ct specific gep
+            ct_specific_gep <- list()
+            for (i in seq_along(colnames(signature$mu))) {
+                temp_gep <- t(result[[1]]$Nu[, , i])
+                ## Weight by Omega
+                omega_weighted_gep <- (temp_gep - colMeans(temp_gep)) *
+                    result[[1]]$Omega[, i]
+                ## Name samples and genes
+                omega_weighted_gep_df <- DataFrame(omega_weighted_gep)
+                colnames(omega_weighted_gep_df) <- colnames(bulk)
+                rownames(omega_weighted_gep_df) <- rownames(bulk)
+                ## add to ct_specific_gep list
+                ct_specific_gep[colnames(signature$mu)[i]] <-
+                    SummarizedExperiment(
+                    assays = SimpleList(weighted_gep = omega_weighted_gep_df))
+            }
+            ## Add cell type specific gene expression to Statescope obj
+            ct_specific_gep(Statescope) <- ct_specific_gep
+            Statescope
+        }, BLADE_obj = BLADE_obj, Mu = Mu, Omega = Omega, bulk = bulk,
+        cores = cores)
     ## stop basilisk
     basiliskStop(proc)
 

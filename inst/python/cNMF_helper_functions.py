@@ -24,7 +24,6 @@ import pandas as pd
 import random
 from scipy.stats import zscore
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import silhouette_score
 import random
 from scipy.cluster.hierarchy import average, cophenet

@@ -50,7 +50,7 @@ create_signature <- function(data, hvg_genes = FALSE) {
     }
 
     ## subset on hvg_genes if true
-    if (hvg_genes){
+    if (hvg_genes) {
         ## calculate per gene variance
         dec.data <- modelGeneVar(data, assay.type = "logcounts")
 
@@ -58,8 +58,8 @@ create_signature <- function(data, hvg_genes = FALSE) {
         hvg_genes <- getTopHVGs(dec.data, n = 3000L)
 
         ## subset mu and omega
-        mu <- mu[hvg_genes,]
-        new_omega <- new_omega[hvg_genes,]
+        mu <- mu[hvg_genes, ]
+        new_omega <- new_omega[hvg_genes, ]
     }
 
     return(SimpleList(mu = mu, omega = new_omega))

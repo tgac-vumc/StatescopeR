@@ -4,8 +4,10 @@
 setGeneric("BLADE_output", function(x) standardGeneric("BLADE_output"))
 
 #' @export
-setGeneric("BLADE_output<-",
-                        function(x, value) standardGeneric("BLADE_output<-"))
+setGeneric(
+    "BLADE_output<-",
+    function(x, value) standardGeneric("BLADE_output<-")
+)
 
 #' @export
 setGeneric("fractions", function(x) standardGeneric("fractions"))
@@ -17,11 +19,22 @@ setGeneric("fractions<-", function(x, value) standardGeneric("fractions<-"))
 setGeneric("ct_specific_gep", function(x) standardGeneric("ct_specific_gep"))
 
 #' @export
-setGeneric("ct_specific_gep<-",
-                        function(x, value) standardGeneric("ct_specific_gep<-"))
+setGeneric(
+    "ct_specific_gep<-",
+    function(x, value) standardGeneric("ct_specific_gep<-")
+)
 
 #' @export
 setGeneric("statescores", function(x) standardGeneric("statescores"))
 
 #' @export
 setGeneric("statescores<-", function(x, value) standardGeneric("statescores<-"))
+
+#' @export
+setGeneric("stateloadings", function(x) standardGeneric("stateloadings"))
+
+#' @export
+setGeneric(
+    "stateloadings<-",
+    function(x, value) standardGeneric("stateloadings<-")
+)

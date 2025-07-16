@@ -1,7 +1,7 @@
 Package: StatescopeR
 Type: Package
 Title: Tumor-informed RNA Deconvolution
-Version: 0.99.0
+Version: 0.99.1
 Authors@R:
     c(person(given = "Mischa",
              family = "Stetketee",

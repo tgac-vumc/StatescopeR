@@ -1,6 +1,6 @@
 Package: StatescopeR
 Type: Package
-Title: Tumor-informed RNA Deconvolution
+Title: StatescopeR framework for discovery of cell states from cell type-specific gene expression profiles inferred from bulk mRNA profiles
 Version: 0.99.1
 Authors@R:
     c(person(given = "Mischa",

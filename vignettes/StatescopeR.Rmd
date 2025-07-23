@@ -123,7 +123,7 @@ scRNAseq <- normalize_scRNAseq(scRNAseq)
 signature <- create_signature(scRNAseq, hvg_genes = TRUE)
 
 ## select subset of genes for deconvolution
-selected_genes <- select_genes(scRNAseq, 200L) # 200 genes to make it quick
+selected_genes <- select_genes(scRNAseq, 100L) # 100 to make StatescopeR quick
 
 ## Create pseudobulk and also lognormalize
 pseudobulk <- generate_pseudobulk(scRNAseq)
@@ -142,14 +142,13 @@ and discovery transcriptional states.
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
 Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
-    cores = 1L
-)
+    cores = 2L) # Reduce repitions for example
 
 ## Run Refinement module
-Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 1L)
+Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 2L)
 
 ## Run State Discovery module
-Statescope <- StateDiscovery(Statescope, Ncores = 1L, max_clusters = 4L)
+Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
 ```
 
 ## Evaluate Statescope

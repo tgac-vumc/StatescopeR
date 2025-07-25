@@ -119,11 +119,12 @@ maximum number of optimization iteration etc.)
 ## Normalize (cp10k) and logtransform scRNAseq
 scRNAseq <- normalize_scRNAseq(scRNAseq)
 
-## Create scRNAseq reference/signature
-signature <- create_signature(scRNAseq, hvg_genes = TRUE)
+## Create scRNAseq reference/signature with 500 hvg for quick example
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  500L)
 
 ## select subset of genes for deconvolution
-selected_genes <- select_genes(scRNAseq, 100L) # 100 to make StatescopeR quick
+selected_genes <- select_genes(scRNAseq, 100L, 500L) # 100 genes from 500 hvg to
+                                                     #   make it quick
 
 ## Create pseudobulk and also lognormalize
 pseudobulk <- generate_pseudobulk(scRNAseq)
@@ -241,7 +242,7 @@ group_prior <- list("Group" = group, "Expectation" = prior)
 ## a ductal cell prior this time
 Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes,
     group_prior,
-    cores = 1L
+    cores = 2L
 )
 ```
 

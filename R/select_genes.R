@@ -7,6 +7,8 @@
 #' same as signature dataset
 #' @param fixed_n_features integer number of genes to pick with autogenes,
 #' default is NA which lets autogenes itself pick
+#' @param n_hvg_genes int which allows the users to choose the number of highly
+#' variable genes
 #'
 #' @return Vector of genes to use for deconvolution
 #' @import scran basilisk reticulate
@@ -31,14 +33,15 @@
 #' celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
 #' data <- data[, !data$label %in% celltypes_to_remove]
 #' data <- normalize_scRNAseq(data)
-#' selected_genes <- select_genes(data)
-select_genes <- function(data, fixed_n_features = NA) {
+#' selected_genes <- select_genes(scRNAseq, 100L, 500L) # 100 genes from 500 hvg
+#' to make it quick
+select_genes <- function(data, fixed_n_features = NA, n_hvg_genes = 3000L) {
     ## First select hvg
     ## calculate per gene variance
     dec.data <- modelGeneVar(data, assay.type = "logcounts")
 
     ## select hvg
-    hvg_genes <- getTopHVGs(dec.data, n = 3000L)
+    hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)
 
     ## init centroids df
     centroids <- data.frame(row.names = hvg_genes)

@@ -52,22 +52,12 @@
 #' ## Create signature from scRNAseq for deconvolution
 #' signature <- create_signature(scRNAseq)
 #'
-#' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(scRNAseq, 60L)
+#' ## Load Deconvolved Statescope object
+#' load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
+#' package = 'StatescopeR'))
 #'
-#' ## Optionally create prior expectation
-#' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-#' prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-#'
-#' ## Tranpose it to nSample x nCelltype
-#' prior <- t(prior)
-#'
-#' ## Perform Deconvolution with BLADE
-#' Statescope <- BLADE_deconvolution(
-#'     signature, pseudobulk, selected_genes,
-#'     prior, 2L
-#' )
-#' Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
+#' ## Run Refinement
+#' Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
 #' ct_specific_gep(Statescope)
 Refinement <- function(Statescope, signature, bulk, cores = 1L) {
     ## Prepare Refinement input

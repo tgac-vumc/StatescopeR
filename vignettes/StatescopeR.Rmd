@@ -143,7 +143,7 @@ and discovery transcriptional states.
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
 Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
-    cores = 2L) # Reduce repitions for example
+    cores = 2L)
 
 ## Run Refinement module
 Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 2L)

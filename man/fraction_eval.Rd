@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{fraction_eval}
 \alias{fraction_eval}
-\title{Create a barplot of True vs estimated cfs}
+\title{Create a barplot of TRUE vs estimated cfs}
 \usage{
 fraction_eval(Statescope, true_fractions)
 }
@@ -39,31 +39,9 @@ celltypes_to_remove <-
     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
 scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
 
-scRNAseq <- normalize_scRNAseq(scRNAseq)
-
-## Create and normalized pseudobulk from scRNAseq
-pseudobulk <- generate_pseudobulk(scRNAseq)
-
-pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-
-## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq)
-
-## Select genes optimized for deconvolution
-selected_genes <- select_genes(scRNAseq)
-
-## Optionally create prior expectation
-prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-
-## Tranpose it to nSample x nCelltype
-prior <- t(prior)
-
-## Perform Deconvolution with BLADE, refine gene expression estimates
-Statescope <- BLADE_deconvolution(
-    signature, pseudobulk, selected_genes,
-    prior, 1L
-)
+## Load Deconvolved Statescope object
+load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
+package = 'StatescopeR'))
 
 ## ## Plot fraction correlation and RMSE per ct
 fraction_eval(Statescope, gather_true_fractions(scRNAseq))

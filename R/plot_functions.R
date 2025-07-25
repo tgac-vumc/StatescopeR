@@ -6,7 +6,8 @@
 #'
 NULL
 
-#' Create a barplot of True vs estimated cfs
+#'
+#' Create a barplot of TRUE vs estimated cfs
 #'
 #' Create a barplot of TRUE vs estimated cfs
 #'
@@ -36,31 +37,9 @@ NULL
 #'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
 #' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 #'
-#' scRNAseq <- normalize_scRNAseq(scRNAseq)
-#'
-#' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk <- generate_pseudobulk(scRNAseq)
-#'
-#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-#'
-#' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(scRNAseq)
-#'
-#' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(scRNAseq)
-#'
-#' ## Optionally create prior expectation
-#' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-#' prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-#'
-#' ## Tranpose it to nSample x nCelltype
-#' prior <- t(prior)
-#'
-#' ## Perform Deconvolution with BLADE, refine gene expression estimates
-#' Statescope <- BLADE_deconvolution(
-#'     signature, pseudobulk, selected_genes,
-#'     prior, 1L
-#' )
+#' ## Load Deconvolved Statescope object
+#' load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
+#' package = 'StatescopeR'))
 #'
 #' ## ## Plot fraction correlation and RMSE per ct
 #' fraction_eval(Statescope, gather_true_fractions(scRNAseq))
@@ -122,51 +101,9 @@ fraction_eval <- function(Statescope, true_fractions) {
 #' @return A heatmap rendered to the active graphics device
 #' @export fraction_heatmap
 #' @examples
-#' #' ## Load scRNAseq
-#' scRNAseq <- scRNAseq::SegerstolpePancreasData()
-#'
-#' ## subset to 100 genes for example
-#' scRNAseq <- scRNAseq[1:100]
-#' ## Preprocess scRNAseq
-#' scRNAseq$donor <- scRNAseq$individual
-#' scRNAseq$label <- scRNAseq$`cell type`
-#'
-#' ## remove NA cells
-#' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-#'
-#' ## remove duplicates gene names
-#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-#'
-#' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove <-
-#'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
-#' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
-#'
-#' scRNAseq <- normalize_scRNAseq(scRNAseq)
-#'
-#' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk <- generate_pseudobulk(scRNAseq)
-#'
-#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-#'
-#' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(scRNAseq)
-#'
-#' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(scRNAseq)
-#'
-#' ## Optionally create prior expectation
-#' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-#' prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-#'
-#' ## Tranpose it to nSample x nCelltype
-#' prior <- t(prior)
-#'
-#' ## Perform Deconvolution with BLADE, refine gene expression estimates
-#' Statescope <- BLADE_deconvolution(
-#'     signature, pseudobulk, selected_genes,
-#'     prior, 1L
-#' )
+#' ## Load Deconvolved Statescope object
+#' load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
+#' package = 'StatescopeR'))
 #'
 #' ## Plot fraction heatmap
 #' fraction_heatmap(Statescope)
@@ -187,51 +124,9 @@ fraction_heatmap <- function(Statescope, ...) {
 #' @return A barplot rendered to the active graphics device
 #' @export barplot_stateloadings
 #' @examples
-#' #' ## Load scRNAseq
-#' scRNAseq <- scRNAseq::SegerstolpePancreasData()
-#'
-#' ## subset to 100 genes for example
-#' scRNAseq <- scRNAseq[1:100]
-#' ## Preprocess scRNAseq
-#' scRNAseq$donor <- scRNAseq$individual
-#' scRNAseq$label <- scRNAseq$`cell type`
-#'
-#' ## remove NA cells
-#' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-#'
-#' ## remove duplicates gene names
-#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-#'
-#' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove <-
-#'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
-#' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
-#'
-#' scRNAseq <- normalize_scRNAseq(scRNAseq)
-#'
-#' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk <- generate_pseudobulk(scRNAseq)
-#'
-#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-#'
-#' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(scRNAseq)
-#'
-#' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(scRNAseq)
-#'
-#' ## Optionally create prior expectation
-#' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-#' prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-#'
-#' ## Tranpose it to nSample x nCelltype
-#' prior <- t(prior)
-#'
-#' ## Perform Deconvolution with BLADE, refine gene expression estimates
-#' Statescope <- BLADE_deconvolution(
-#'     signature, pseudobulk, selected_genes,
-#'     prior, 1L
-#' )
+#' #' ## Load Discovered Statescope object
+#' load(system.file('extdata', 'example_Statescope_Discovered.RData',
+#' package = 'StatescopeR'))
 #'
 #' ## Plot fraction heatmap
 #' barplot_stateloadings(Statescope, top_n = 1)

@@ -1,7 +1,7 @@
 library(scRNAseq)
 library(StatescopeR)
 
-test_that("BLADE deconvolution works properly  with prior on simulation data", {
+test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## Load SegerstolpePancreas data set
     scRNAseq <- SegerstolpePancreasData()
     scRNAseq$donor <- scRNAseq$individual
@@ -18,29 +18,31 @@ test_that("BLADE deconvolution works properly  with prior on simulation data", {
         names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
     scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 
-    ## Normalize (cp10k) and logtransform scRNAseq
     scRNAseq <- normalize_scRNAseq(scRNAseq)
 
-    ## Create scRNAseq reference/signature
-    signature <- create_signature(scRNAseq, hvg_genes = TRUE,
-                                  n_hvg_genes =  200L)
-
-    ## select subset of genes for deconvolution
-    selected_genes <- select_genes(scRNAseq, 60L, 200L) # 60 of 200 hvg genes
-                                                            # to make it quick
-
-    ## Create pseudobulk and also lognormalize
+    ## Create and normalized pseudobulk from scRNAseq
     pseudobulk <- generate_pseudobulk(scRNAseq)
+
     pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
-    ## (optional) Create prior expectation
-    prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-    prior[rownames(prior) != "ductal cell", ] <- NA #Keep only ductal cells as prior
-    prior <- t(prior) # Tranpose it to nSample x nCelltype
+    ## Create signature from scRNAseq for deconvolution
+    signature <- create_signature(scRNAseq)
 
-    ## Run Deconvolution module
-    Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
-                                      cores = 2L)
+    ## Select genes optimized for deconvolution
+    selected_genes <- select_genes(scRNAseq, 60L, n_hvg_genes = 200L)
+
+    ## Optionally create prior expectation
+    prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
+    prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
+
+    ## Tranpose it to nSample x nCelltype
+    prior <- t(prior)
+
+    ## Perform Deconvolution with BLADE
+    Statescope <- BLADE_deconvolution(
+        signature, pseudobulk, selected_genes,
+        prior, 2L
+    )
 
     ## Compare true fractions with deconvolution results
     true_fractions = gather_true_fractions(scRNAseq)

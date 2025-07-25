@@ -33,52 +33,9 @@ updated Statescope S4 object with statescores per celltype added
 \code{StateDiscovery.R} Discovers states from refined ct-specific gep
 }
 \examples{
-## Load scRNAseq
-scRNAseq <- scRNAseq::SegerstolpePancreasData()
-
-## subset to 100 genes for example
-scRNAseq <- scRNAseq[1:100]
-## Preprocess scRNAseq
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
-
-## remove NA cells
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
-## remove duplicates gene names
-scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-
-## remove cells with less than 100 in total cohort
-celltypes_to_remove <-
-    names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
-scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
-
-scRNAseq <- normalize_scRNAseq(scRNAseq)
-
-## Create and normalized pseudobulk from scRNAseq
-pseudobulk <- generate_pseudobulk(scRNAseq)
-
-pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-
-## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq)
-
-## Select genes optimized for deconvolution
-selected_genes <- select_genes(scRNAseq, 60L)
-
-## Optionally create prior expectation
-prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-
-## Tranpose it to nSample x nCelltype
-prior <- t(prior)
-
-## Perform Deconvolution with BLADE, refine gene expression estimates
-Statescope <- BLADE_deconvolution(
-    signature, pseudobulk, selected_genes,
-    prior, 2L
-)
-Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
+## Load Refined Statescope object
+load(system.file('extdata', 'example_Statescope_Refined.RData',
+package = 'StatescopeR'))
 
 ## Discover states
 Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)

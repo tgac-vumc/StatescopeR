@@ -4,14 +4,17 @@
 \alias{select_genes}
 \title{Select genes using AutoGeneS}
 \usage{
-select_genes(data, fixed_n_features = NA)
+select_genes(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L)
 }
 \arguments{
-\item{data}{SingleCellExperiment object to use for gene selection, should be
-same as signature dataset}
+\item{scRNAseq}{SingleCellExperiment object to use for gene selection, should
+be same as signature dataset}
 
 \item{fixed_n_features}{integer number of genes to pick with autogenes,
 default is NA which lets autogenes itself pick}
+
+\item{n_hvg_genes}{int which allows the users to choose the number of highly
+variable genes}
 }
 \value{
 Vector of genes to use for deconvolution
@@ -20,22 +23,23 @@ Vector of genes to use for deconvolution
 \code{select_genes.R} select genes using AutoGeneS for deconvolution
 }
 \examples{
-# Load data
-data <- scRNAseq::SegerstolpePancreasData()
+# Load scRNAseq
+scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
 ## subset to 100 genes for example
-data <- data[1:100]
-data$donor <- data$individual
-data$label <- data$`cell type`
+scRNAseq <- scRNAseq[1:100]
+scRNAseq$donor <- scRNAseq$individual
+scRNAseq$label <- scRNAseq$`cell type`
 ## remove NA cells
-data <- data[, !is.na(data$label)]
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
 # remove duplicates gene names
-data <- data[!duplicated(rownames(data)), ]
+scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
 # remove cells with less than 100 in total cohort
-celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
-data <- data[, !data$label \%in\% celltypes_to_remove]
-data <- normalize_scRNAseq(data)
-selected_genes <- select_genes(data)
+celltypes_to_remove <- names(table(scRNAseq$label)[(table(scRNAseq$label)
+< 100)])
+scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
+scRNAseq <- normalize_scRNAseq(scRNAseq)
+selected_genes <- select_genes(scRNAseq, 60L) # 60 genes
 }

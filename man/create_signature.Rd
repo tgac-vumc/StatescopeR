@@ -4,13 +4,16 @@
 \alias{create_signature}
 \title{Create scRNAseq Signature}
 \usage{
-create_signature(data, hvg_genes = FALSE)
+create_signature(data, hvg_genes = FALSE, n_hvg_genes = 3000L)
 }
 \arguments{
 \item{data}{SingleCellExperiment object of which to make signature}
 
 \item{hvg_genes}{boolean which chooses if mu and omega should be subset to
 highly variable genes or not}
+
+\item{n_hvg_genes}{int which allows the users to choose the number of highly
+variable genes}
 }
 \value{
 SimpleList DataFrames for Mu (mean per gene per cell type) and

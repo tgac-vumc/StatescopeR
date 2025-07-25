@@ -50,11 +50,10 @@
 #' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 #'
 #' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(scRNAseq, hvg_genes = TRUE,
-#' n_hvg_genes =  500L)
+#' signature <- create_signature(scRNAseq)
 #'
 #' ## Select genes optimized for deconvolution
-#' selected_genes <- select_genes(scRNAseq, 100L, 500L)
+#' selected_genes <- select_genes(scRNAseq, 60L)
 #'
 #' ## Optionally create prior expectation
 #' prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this

@@ -64,7 +64,7 @@ pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 signature <- create_signature(scRNAseq)
 
 ## Select genes optimized for deconvolution
-selected_genes <- select_genes(scRNAseq)
+selected_genes <- select_genes(scRNAseq, 60L)
 
 ## Optionally create prior expectation
 prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
@@ -76,12 +76,12 @@ prior <- t(prior)
 ## Perform Deconvolution with BLADE, refine gene expression estimates
 Statescope <- BLADE_deconvolution(
     signature, pseudobulk, selected_genes,
-    prior, 1L
+    prior, 2L
 )
-Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
+Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
 
 ## Discover states
-Statescope <- StateDiscovery(Statescope)
+Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
 
 ## Look at output
 statescores(Statescope)

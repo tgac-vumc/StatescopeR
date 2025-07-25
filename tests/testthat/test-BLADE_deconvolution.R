@@ -22,10 +22,12 @@ test_that("BLADE deconvolution works properly  with prior on simulation data", {
     scRNAseq <- normalize_scRNAseq(scRNAseq)
 
     ## Create scRNAseq reference/signature
-    signature <- create_signature(scRNAseq, hvg_genes = TRUE)
+    signature <- create_signature(scRNAseq, hvg_genes = TRUE,
+                                  n_hvg_genes =  200L)
 
     ## select subset of genes for deconvolution
-    selected_genes <- select_genes(scRNAseq, 100L) # 200 genes to make it quick
+    selected_genes <- select_genes(scRNAseq, 60L, 200L) # 60 of 200 hvg genes
+                                                            # to make it quick
 
     ## Create pseudobulk and also lognormalize
     pseudobulk <- generate_pseudobulk(scRNAseq)

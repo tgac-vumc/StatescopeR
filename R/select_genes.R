@@ -3,8 +3,8 @@
 #' \code{select_genes.R} select genes using AutoGeneS for deconvolution
 #'
 #'
-#' @param data SingleCellExperiment object to use for gene selection, should be
-#' same as signature dataset
+#' @param scRNAseq SingleCellExperiment object to use for gene selection, should
+#' be same as signature dataset
 #' @param fixed_n_features integer number of genes to pick with autogenes,
 #' default is NA which lets autogenes itself pick
 #' @param n_hvg_genes int which allows the users to choose the number of highly
@@ -16,41 +16,43 @@
 #' @export
 #'
 #' @examples
-#' # Load data
-#' data <- scRNAseq::SegerstolpePancreasData()
+#' # Load scRNAseq
+#' scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'
 #' ## subset to 100 genes for example
-#' data <- data[1:100]
-#' data$donor <- data$individual
-#' data$label <- data$`cell type`
+#' scRNAseq <- scRNAseq[1:100]
+#' scRNAseq$donor <- scRNAseq$individual
+#' scRNAseq$label <- scRNAseq$`cell type`
 #' ## remove NA cells
-#' data <- data[, !is.na(data$label)]
+#' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 #'
 #' # remove duplicates gene names
-#' data <- data[!duplicated(rownames(data)), ]
+#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #' # remove cells with less than 100 in total cohort
-#' celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
-#' data <- data[, !data$label %in% celltypes_to_remove]
-#' data <- normalize_scRNAseq(data)
-#' selected_genes <- select_genes(scRNAseq, 100L, 500L) # 100 genes from 500 hvg
-#' to make it quick
-select_genes <- function(data, fixed_n_features = NA, n_hvg_genes = 3000L) {
+#' celltypes_to_remove <- names(table(scRNAseq$label)[(table(scRNAseq$label)
+#' < 100)])
+#' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
+#' scRNAseq <- normalize_scRNAseq(scRNAseq)
+#' selected_genes <- select_genes(scRNAseq, 60L) # 60 genes
+select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L) {
     ## First select hvg
     ## calculate per gene variance
-    dec.data <- modelGeneVar(data, assay.type = "logcounts")
+    dec.data <- modelGeneVar(scRNAseq, assay.type = "logcounts")
 
     ## select hvg
-    hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)
+    if (nrow(scRNAseq) < n_hvg_genes){
+        hvg_genes <- rownames(scRNAseq) ## don't select hvg_genes
+    }else hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)
 
     ## init centroids df
     centroids <- data.frame(row.names = hvg_genes)
     ## Calculate centroids for each celltype
-    for (ct in unique(data$label)) {
-        ## subset data on celltype
-        temp_data <- data[hvg_genes, data$label == ct]
+    for (ct in unique(scRNAseq$label)) {
+        ## subset scRNAseq on celltype
+        temp_scRNAseq <- scRNAseq[hvg_genes, scRNAseq$label == ct]
         ## Calculate centroids for all genes
-        centroids[ct] <- rowMeans(as.array(logcounts(temp_data)))
+        centroids[ct] <- rowMeans(as.array(logcounts(temp_scRNAseq)))
     }
 
     ## start basilisk

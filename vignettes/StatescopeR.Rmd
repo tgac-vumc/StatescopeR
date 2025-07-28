@@ -100,6 +100,9 @@ scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`
 
+## Subset to 3 healthy and 3 type 2 diabetes samples
+scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3', 'H4',
+                                           'T2D1', 'T2D2', 'T2D3')]
 ## remove cells with no cell type label
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
@@ -122,10 +125,10 @@ maximum number of optimization iteration etc.)
 scRNAseq <- normalize_scRNAseq(scRNAseq)
 
 ## Create scRNAseq reference/signature with 100 hvg for quick example
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  100L)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  50L)
 
 ## select subset of genes for deconvolution
-selected_genes <- select_genes(scRNAseq, 60L, 100L) # 60 genes from 100 hvg to
+selected_genes <- select_genes(scRNAseq, 30L, 50L) # 30 genes from 50 hvg to
                                                     #   make it quick
 
 ## Create pseudobulk and also lognormalize
@@ -195,12 +198,12 @@ barplot_stateloadings(Statescope)
 If you have an expected fraction for a group of cell types instead of for one 
 specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also 
 allows you to give a group prior. Here we show an example where we know the 
-expected fraction of the pancreatic islet cells (alpha, beta, delta & 
-gamma cells) in together, but not their individual contributions.
+expected fraction of the pancreatic islet cells (alpha, beta & 
+gamma cells) together, but not their individual contributions.
 
 ```{r 'Group expectations'}
 ## define cell types in one group
-grouped_cts <- c("alpha cell", "beta cell", "delta cell", "gamma cell")
+grouped_cts <- c("alpha cell", "beta cell",  "gamma cell")
 
 ## init groups with 0
 group <- matrix(0,

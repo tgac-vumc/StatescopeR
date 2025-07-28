@@ -1,5 +1,4 @@
 library(scRNAseq)
-library(StatescopeR)
 
 test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## Load scRNAseq
@@ -46,7 +45,7 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## Perform Deconvolution with BLADE, refine gene expression estimates
     Statescope <- BLADE_deconvolution(
         signature, pseudobulk, selected_genes,
-        prior, 2L, Nrep = 2L
+        prior, 1L, Nrep = 1L ## Parallel causes workers to hang
     )
 
     ## Compare true fractions with deconvolution results

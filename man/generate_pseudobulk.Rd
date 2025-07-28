@@ -20,8 +20,6 @@ SingleCellExperiment object
 #' ## Load data
 data <- scRNAseq::SegerstolpePancreasData()
 
-## subset to 100 genes for example
-data <- data[1:100]
 ## Preprocess data
 data$donor <- data$individual
 data$label <- data$`cell type`

@@ -19,8 +19,6 @@ counts to your SingleCellExperiment object
 \examples{
 ## Load data
 data <- scRNAseq::SegerstolpePancreasData()
-
-## subset to 100 genes for example
-data <- data[1:100]
+## Normalize
 data <- normalize_scRNAseq(data)
 }

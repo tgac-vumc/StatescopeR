@@ -19,9 +19,7 @@
 #' @examples
 #' ## Load data
 #' data <- scRNAseq::SegerstolpePancreasData()
-#'
-#' ## subset to 100 genes for example
-#' data <- data[1:100]
+#' ## Normalize and create signature
 #' data <- normalize_scRNAseq(data)
 #' signature <- create_signature(data)
 create_signature <- function(data, hvg_genes = FALSE, n_hvg_genes = 3000L) {

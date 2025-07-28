@@ -2,22 +2,25 @@ library(scRNAseq)
 library(StatescopeR)
 
 test_that("BLADE deconvolution works properly with prior on simulation data", {
-    ## Load SegerstolpePancreas data set
-    scRNAseq <- SegerstolpePancreasData()
+    ## Load scRNAseq
+    scRNAseq <- scRNAseq::SegerstolpePancreasData()
+
+    ## remove duplicates gene names
+    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
+
+    ## Preprocess scRNAseq
     scRNAseq$donor <- scRNAseq$individual
     scRNAseq$label <- scRNAseq$`cell type`
 
-    ## remove cells with no cell type label
+    ## remove NA cells
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
-    ## remove duplicate genes
-    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-
-    ## remove very rare cell types (<100 cells in total data set)
+    ## remove cells with less than 100 in total cohort
     celltypes_to_remove <-
         names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
     scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 
+    ## preprocessing
     scRNAseq <- normalize_scRNAseq(scRNAseq)
 
     ## Create and normalized pseudobulk from scRNAseq
@@ -26,10 +29,12 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
     pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
     ## Create signature from scRNAseq for deconvolution
-    signature <- create_signature(scRNAseq)
+    signature <- create_signature(scRNAseq, hvg_genes = TRUE,
+                                  n_hvg_genes = 100L)
 
-    ## Select genes optimized for deconvolution
-    selected_genes <- select_genes(scRNAseq, 60L, n_hvg_genes = 200L)
+    ##  Load selected genes
+    load(system.file('extdata', 'example_selected_genes.RData',
+    package = 'StatescopeR'))
 
     ## Optionally create prior expectation
     prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
@@ -38,10 +43,10 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## Tranpose it to nSample x nCelltype
     prior <- t(prior)
 
-    ## Perform Deconvolution with BLADE
+    ## Perform Deconvolution with BLADE, refine gene expression estimates
     Statescope <- BLADE_deconvolution(
         signature, pseudobulk, selected_genes,
-        prior, 2L
+        prior, 2L, Nrep = 2L
     )
 
     ## Compare true fractions with deconvolution results

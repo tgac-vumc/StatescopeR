@@ -21,9 +21,6 @@ Create a barplot of TRUE vs estimated cfs
 \examples{
 ## Load scRNAseq
 scRNAseq <- scRNAseq::SegerstolpePancreasData()
-
-## subset to 100 genes for example
-scRNAseq <- scRNAseq[1:100]
 ## Preprocess scRNAseq
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`

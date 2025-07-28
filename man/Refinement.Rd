@@ -33,8 +33,6 @@ more than initially
 ## Load scRNAseq
 scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
-## subset to 100 genes for example
-scRNAseq <- scRNAseq[1:100]
 ## Preprocess scRNAseq
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`
@@ -58,7 +56,7 @@ pseudobulk <- generate_pseudobulk(scRNAseq)
 pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
 ## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 100L)
 
 ## Load Deconvolved Statescope object
 load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
@@ -66,5 +64,7 @@ package = 'StatescopeR'))
 
 ## Run Refinement
 Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
+
+## Show cell type specific gene expression profile estimates
 ct_specific_gep(Statescope)
 }

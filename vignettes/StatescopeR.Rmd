@@ -92,14 +92,16 @@ suppressMessages(library(scRNAseq))
 
 ## Load SegerstolpePancreas data set
 scRNAseq <- SegerstolpePancreasData()
+
+## remove duplicate genes
+scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
+
+## Preprocess scRNAseq
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`
 
 ## remove cells with no cell type label
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
-## remove duplicate genes
-scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
 ## remove very rare cell types (<100 cells in total data set)
 celltypes_to_remove <- 
@@ -119,11 +121,11 @@ maximum number of optimization iteration etc.)
 ## Normalize (cp10k) and logtransform scRNAseq
 scRNAseq <- normalize_scRNAseq(scRNAseq)
 
-## Create scRNAseq reference/signature with 200 hvg for quick example
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  200L)
+## Create scRNAseq reference/signature with 100 hvg for quick example
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  100L)
 
 ## select subset of genes for deconvolution
-selected_genes <- select_genes(scRNAseq, 60L, 200L) # 60 genes from 200 hvg to
+selected_genes <- select_genes(scRNAseq, 60L, 100L) # 60 genes from 100 hvg to
                                                     #   make it quick
 
 ## Create pseudobulk and also lognormalize

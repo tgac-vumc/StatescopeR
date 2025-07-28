@@ -22,7 +22,7 @@
 #' ## Discover states
 #' Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
 #'
-#' ## Look at output
+#' ## Look at statescores and stateloadings
 #' statescores(Statescope)
 #' stateloadings(Statescope)
 #'

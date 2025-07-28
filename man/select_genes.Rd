@@ -26,20 +26,24 @@ Vector of genes to use for deconvolution
 # Load scRNAseq
 scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
-## subset to 100 genes for example
-scRNAseq <- scRNAseq[1:100]
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
-## remove NA cells
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
 # remove duplicates gene names
 scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
+
+## Preprocess scRNAseq
+scRNAseq$donor <- scRNAseq$individual
+scRNAseq$label <- scRNAseq$`cell type`
+
+## remove NA cells
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
 # remove cells with less than 100 in total cohort
 celltypes_to_remove <- names(table(scRNAseq$label)[(table(scRNAseq$label)
 < 100)])
 scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
+
+## Normalize to log cp 10k
 scRNAseq <- normalize_scRNAseq(scRNAseq)
-selected_genes <- select_genes(scRNAseq, 60L) # 60 genes
+
+## Select genes by autogenes
+selected_genes <- select_genes(scRNAseq, 60L, n_hvg_genes = 100L) # 60 genes
 }

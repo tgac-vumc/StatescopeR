@@ -55,16 +55,13 @@ mRNA
 ## Load scRNAseq
 scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
-## remove duplicates gene names
-scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-
 ## Preprocess scRNAseq
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`
 
-## Subset to 3 healthy and 3 type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor \%in\% c('H2', 'H3', 'H4',
-                                        'T2D1', 'T2D2', 'T2D3')]
+## Subset to 2 healthy and 2 type 2 diabetes samples
+scRNAseq = scRNAseq[,scRNAseq$donor \%in\% c('H2', 'H3',
+                                        'T2D1', 'T2D2')]
 ## remove NA cells
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
@@ -72,17 +69,13 @@ scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 celltypes_to_remove <-
     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
 scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
+##  Load pseudobulk
+load(system.file('extdata', 'example_pseudobulk.RData',
+package = 'StatescopeR'))
 
-## preprocessing
-scRNAseq <- normalize_scRNAseq(scRNAseq)
-
-## Create and normalized pseudobulk from scRNAseq
-pseudobulk <- generate_pseudobulk(scRNAseq)
-
-pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-
-## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 50L)
+##  Load signature
+load(system.file('extdata', 'example_signature.RData',
+package = 'StatescopeR'))
 
 ##  Load selected genes
 load(system.file('extdata', 'example_selected_genes.RData',

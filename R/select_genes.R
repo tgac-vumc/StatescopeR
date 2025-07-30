@@ -19,6 +19,9 @@
 #' # Load scRNAseq
 #' scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'
+#' ## subset to first 100 genes for example
+#' scRNAseq <- scRNAseq[1:100]
+#'
 #' # remove duplicates gene names
 #' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'

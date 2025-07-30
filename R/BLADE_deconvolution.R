@@ -31,9 +31,6 @@
 #' ## Load scRNAseq
 #' scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'
-#' ## remove duplicates gene names
-#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-#'
 #' ## Preprocess scRNAseq
 #' scRNAseq$donor <- scRNAseq$individual
 #' scRNAseq$label <- scRNAseq$`cell type`
@@ -48,17 +45,14 @@
 #' celltypes_to_remove <-
 #'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
 #' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
+
+#' ##  Load pseudobulk
+#' load(system.file('extdata', 'example_pseudobulk.RData',
+#' package = 'StatescopeR'))
 #'
-#' ## preprocessing
-#' scRNAseq <- normalize_scRNAseq(scRNAseq)
-#'
-#' ## Create and normalized pseudobulk from scRNAseq
-#' pseudobulk <- generate_pseudobulk(scRNAseq)
-#'
-#' pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-#'
-#' ## Create signature from scRNAseq for deconvolution
-#' signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 50L)
+#' ##  Load signature
+#' load(system.file('extdata', 'example_signature.RData',
+#' package = 'StatescopeR'))
 #'
 #' ##  Load selected genes
 #' load(system.file('extdata', 'example_selected_genes.RData',

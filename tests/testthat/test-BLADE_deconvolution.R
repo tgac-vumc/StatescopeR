@@ -4,9 +4,6 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## Load scRNAseq
     scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
-    ## remove duplicates gene names
-    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-
     ## Preprocess scRNAseq
     scRNAseq$donor <- scRNAseq$individual
     scRNAseq$label <- scRNAseq$`cell type`
@@ -22,15 +19,11 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
         names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
     scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 
-    ## preprocessing
-    scRNAseq <- normalize_scRNAseq(scRNAseq)
+    ##  pseudobulk
+    load(system.file('extdata', 'example_pseudobulk.RData',
+                     package = 'StatescopeR'))
 
-    ## Create and normalized pseudobulk from scRNAseq
-    pseudobulk <- generate_pseudobulk(scRNAseq)
-
-    pseudobulk <- normalize_bulkRNAseq(pseudobulk)
-
-    ##  Load selected genes
+    ##  Load signature
     load(system.file('extdata', 'example_signature.RData',
                      package = 'StatescopeR'))
 

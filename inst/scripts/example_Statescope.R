@@ -47,12 +47,12 @@ pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 save(pseudobulk, file = 'inst/extdata/example_pseudobulk.RData')
 
 ## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 30L)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 20L)
 
 save(signature, file = 'inst/extdata/example_signature.RData')
 
 ## Select genes optimized for deconvolution (small number of genes for speed)
-selected_genes <- select_genes(scRNAseq, 15L, n_hvg_genes = 30L)
+selected_genes <- select_genes(scRNAseq, 10L, n_hvg_genes = 20L)
 
 save(selected_genes, file = 'inst/extdata/example_selected_genes.RData')
 

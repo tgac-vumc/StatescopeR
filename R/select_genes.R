@@ -39,7 +39,7 @@
 #' scRNAseq <- normalize_scRNAseq(scRNAseq)
 #'
 #' ## Select genes by autogenes
-#' selected_genes <- select_genes(scRNAseq, 15L, n_hvg_genes = 30L) # 15 genes
+#' selected_genes <- select_genes(scRNAseq, 10L, n_hvg_genes = 20L) # 10 genes
 select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L) {
     ## First select hvg
     ## calculate per gene variance

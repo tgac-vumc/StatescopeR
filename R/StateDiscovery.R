@@ -3,6 +3,7 @@
 #' \code{StateDiscovery.R} Discovers states from refined ct-specific gep
 #'
 #' @param Statescope Statescope obj from StatescopeRefinement.
+#' @param k number of cluster to choose, default is NA for automatic selection
 #' @param Ncores number of cores to use for paralellization.
 #' @param max_clusters maximum allowed states per cell type.
 #' @param n_iter Number of initial cNMF restarts.
@@ -20,13 +21,13 @@
 #' package = 'StatescopeR'))
 #'
 #' ## Discover states
-#' Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
+#' Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 2L)
 #'
 #' ## Look at statescores and stateloadings
 #' statescores(Statescope)
 #' stateloadings(Statescope)
 #'
-StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
+StateDiscovery <- function(Statescope, k = NA, max_clusters = 10L, n_iter = 10L,
         n_final_iter = 100L, min_cophenetic = 0.9, Ncores = 1L) {
     ## start basilisk & run StateDiscovery
     setBasiliskShared(FALSE)
@@ -48,8 +49,9 @@ StateDiscovery <- function(Statescope, max_clusters = 10L, n_iter = 10L,
             data_scaled <- as.matrix(assay(ct_specific_gep(Statescope)[[ct]],
                                                                 "weighted_gep"))
             ## Run initial NMF runs for k selection
-            nclust <- select_k(data_scaled, max_clusters, n_iter, Ncores,
-                min_cophenetic)
+            if (is.na(k)){nclust <- select_k(data_scaled, max_clusters, n_iter,
+                                                Ncores, min_cophenetic)
+            } else {nclust <- k} # or use preselected k
             ## Run final model
             final_cNMF_result <- cNMF(data_scaled, as.integer(nclust),
                                         n_final_iter, Ncores)

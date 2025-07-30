@@ -15,7 +15,7 @@ fraction_heatmap(Statescope, ...)
 A heatmap rendered to the active graphics device
 }
 \description{
-Create a heatmap of the estimated fractions ...
+Create a heatmap of the estimated fractions
 }
 \examples{
 ## Load Deconvolved Statescope object

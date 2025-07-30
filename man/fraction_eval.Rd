@@ -30,9 +30,6 @@ scRNAseq = scRNAseq[,scRNAseq$donor \%in\% c('H2', 'H3', 'H4',
 ## remove NA cells
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
-## remove duplicates gene names
-scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-
 ## remove cells with less than 100 in total cohort
 celltypes_to_remove <-
     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])

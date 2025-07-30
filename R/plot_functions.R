@@ -29,9 +29,6 @@ NULL
 #' ## remove NA cells
 #' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 #'
-#' ## remove duplicates gene names
-#' scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
-#'
 #' ## remove cells with less than 100 in total cohort
 #' celltypes_to_remove <-
 #'     names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
@@ -94,7 +91,7 @@ fraction_eval <- function(Statescope, true_fractions) {
 
 #' Create a heatmap of the estimated fractions
 #'
-#' Create a heatmap of the estimated fractions ...
+#' Create a heatmap of the estimated fractions
 #'
 #' @param Statescope Statescope obj from BLADE_deconvolution
 #' @param ... other parameters to pass to  [ComplexHeatmap::Heatmap()]

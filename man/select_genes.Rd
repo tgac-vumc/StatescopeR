@@ -45,5 +45,5 @@ scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
 scRNAseq <- normalize_scRNAseq(scRNAseq)
 
 ## Select genes by autogenes
-selected_genes <- select_genes(scRNAseq, 30L, n_hvg_genes = 50L) # 30 genes
+selected_genes <- select_genes(scRNAseq, 25L, n_hvg_genes = 50L) # 25 genes
 }

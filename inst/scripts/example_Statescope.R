@@ -1,9 +1,10 @@
-# This script was used to create the `example_selected_genes.RData`, `example_Statescope_Deconvolved.RData`,
+# This script was used to create the `example_scRNAseq.RData`, `example_signature.RData`,
+# `example_selected_genes.RData`, `example_Statescope_Deconvolved.RData`,
 # `example_Statescope_Refined.RData` and `example_Statescope_Discovered.RData` files.
 # This file contains an example Statescope pipeline of which the intermediate results
 # are saved for use in examples and tests.
 # For this purpose the SegerstolpePancreasData from the scRNAseq package was used.
-# Rare celltypes were excluded, leaving the 6 most common celltypes for analysis.
+# Rare celltypes were excluded, leaving the 5 most common celltypes for analysis.
 # After this exclusion, standard preprocessing was done, after which genes were
 # selected with AutoGeneS and saved, before running the Statescope framework and saving all steps.
 # Key package versions:
@@ -43,11 +44,15 @@ pseudobulk <- generate_pseudobulk(scRNAseq)
 
 pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
+save(pseudobulk, file = 'inst/extdata/example_pseudobulk.RData')
+
 ## Create signature from scRNAseq for deconvolution
 signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 50L)
 
+save(signature, file = 'inst/extdata/example_signature.RData')
+
 ## Select genes optimized for deconvolution (small number of genes for speed)
-selected_genes <- select_genes(scRNAseq, 30L, n_hvg_genes = 50L)
+selected_genes <- select_genes(scRNAseq, 25L, n_hvg_genes = 50L)
 
 save(selected_genes, file = 'inst/extdata/example_selected_genes.RData')
 
@@ -73,7 +78,7 @@ Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
 save(Statescope, file = 'inst/extdata/example_Statescope_Refined.RData')
 
 ## Discover states
-Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
+Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 2L)
 
 ## Save to RData
 save(Statescope, file = 'inst/extdata/example_Statescope_Discovered.RData')

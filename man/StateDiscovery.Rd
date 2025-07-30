@@ -6,6 +6,7 @@
 \usage{
 StateDiscovery(
   Statescope,
+  k = NA,
   max_clusters = 10L,
   n_iter = 10L,
   n_final_iter = 100L,
@@ -15,6 +16,8 @@ StateDiscovery(
 }
 \arguments{
 \item{Statescope}{Statescope obj from StatescopeRefinement.}
+
+\item{k}{number of cluster to choose, default is NA for automatic selection}
 
 \item{max_clusters}{maximum allowed states per cell type.}
 
@@ -38,7 +41,7 @@ load(system.file('extdata', 'example_Statescope_Refined.RData',
 package = 'StatescopeR'))
 
 ## Discover states
-Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
+Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 2L)
 
 ## Look at statescores and stateloadings
 statescores(Statescope)

@@ -30,9 +30,9 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
 
     pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 
-    ## Create signature from scRNAseq for deconvolution
-    signature <- create_signature(scRNAseq, hvg_genes = TRUE,
-                                  n_hvg_genes = 50L)
+    ##  Load selected genes
+    load(system.file('extdata', 'example_signature.RData',
+                     package = 'StatescopeR'))
 
     ##  Load selected genes
     load(system.file('extdata', 'example_selected_genes.RData',

@@ -14,9 +14,9 @@ test_that("BLADE deconvolution works properly with prior on simulation data", {
     ## remove NA cells
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 
-    ## remove cells with less than 100 in total cohort
+    ## remove cells with less than 120 in total cohort
     celltypes_to_remove <-
-        names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
+        names(table(scRNAseq$label)[(table(scRNAseq$label) < 120)])
     scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 
     ##  pseudobulk

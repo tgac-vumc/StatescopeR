@@ -29,7 +29,7 @@ data$label <- data$`cell type`
 data <- data[, !is.na(data$label)]
 
 ## remove cells with less than 100 in total cohort
-celltypes_to_remove <- names(table(data$label)[(table(data$label) < 100)])
+celltypes_to_remove <- names(table(data$label)[(table(data$label) < 120)])
 data <- data[, !data$label \%in\% celltypes_to_remove]
 
 true_fractions <- gather_true_fractions(data)

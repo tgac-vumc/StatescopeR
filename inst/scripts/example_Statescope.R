@@ -24,9 +24,9 @@ scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 scRNAseq$donor <- scRNAseq$individual
 scRNAseq$label <- scRNAseq$`cell type`
 
-## Subset to 3 healthy and 3 type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3', 'H4',
-                                           'T2D1', 'T2D2', 'T2D3')]
+## Subset to 2 healthy and  type 2 diabetes samples
+scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3',
+                                           'T2D1', 'T2D2')]
 
 ## remove NA cells
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
@@ -47,12 +47,12 @@ pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 save(pseudobulk, file = 'inst/extdata/example_pseudobulk.RData')
 
 ## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 50L)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 30L)
 
 save(signature, file = 'inst/extdata/example_signature.RData')
 
 ## Select genes optimized for deconvolution (small number of genes for speed)
-selected_genes <- select_genes(scRNAseq, 25L, n_hvg_genes = 50L)
+selected_genes <- select_genes(scRNAseq, 15L, n_hvg_genes = 30L)
 
 save(selected_genes, file = 'inst/extdata/example_selected_genes.RData')
 

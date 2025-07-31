@@ -27,19 +27,22 @@
 #' scRNAseq$donor <- scRNAseq$individual
 #' scRNAseq$label <- scRNAseq$`cell type`
 #'
+#' ## Subset to 2 healthy and  type 2 diabetes samples
+#' scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3',
+#'                                             'T2D1', 'T2D2')]
 #' ## remove NA cells
 #' scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
 #'
-#' # remove cells with less than 100 in total cohort
+#' # remove cells with less than 120 in total cohort
 #' celltypes_to_remove <- names(table(scRNAseq$label)[(table(scRNAseq$label)
-#' < 100)])
+#' < 120)])
 #' scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
 #'
 #' ## Normalize to log cp 10k
 #' scRNAseq <- normalize_scRNAseq(scRNAseq)
 #'
 #' ## Select genes by autogenes
-#' selected_genes <- select_genes(scRNAseq, 10L, n_hvg_genes = 20L) # 10 genes
+#' selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L) # 3 genes
 select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L) {
     ## First select hvg
     ## calculate per gene variance

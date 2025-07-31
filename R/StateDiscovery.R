@@ -21,7 +21,7 @@
 #' package = 'StatescopeR'))
 #'
 #' ## Discover states
-#' Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 1L)
+#' Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 2L)
 #'
 #' ## Look at statescores and stateloadings
 #' statescores(Statescope)

@@ -47,12 +47,12 @@ pseudobulk <- normalize_bulkRNAseq(pseudobulk)
 save(pseudobulk, file = 'inst/extdata/example_pseudobulk.RData')
 
 ## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 20L)
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 5L)
 
 save(signature, file = 'inst/extdata/example_signature.RData')
 
 ## Select genes optimized for deconvolution (small number of genes for speed)
-selected_genes <- select_genes(scRNAseq, 10L, n_hvg_genes = 20L)
+selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L)
 
 save(selected_genes, file = 'inst/extdata/example_selected_genes.RData')
 
@@ -66,7 +66,7 @@ prior <- t(prior)
 ## Perform Deconvolution with BLADE, refine gene expression estimates
 Statescope <- BLADE_deconvolution(
     signature, pseudobulk, selected_genes,
-    prior, 2L, Nrep = 2L
+    prior, 1L, Nrep = 1L
 )
 
 ## Save to RData

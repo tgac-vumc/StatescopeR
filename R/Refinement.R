@@ -35,7 +35,7 @@
 #' package = 'StatescopeR'))
 #'
 #' ## Run Refinement
-#' Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
+#' Statescope <- Refinement(Statescope, signature, pseudobulk, 1L)
 #'
 #' ## Show cell type specific gene expression profile estimates
 #' ct_specific_gep(Statescope)

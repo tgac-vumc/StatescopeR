@@ -68,7 +68,7 @@
 #' ## Perform Deconvolution with BLADE
 #' Statescope <- BLADE_deconvolution(
 #'     signature, pseudobulk, selected_genes,
-#'     prior, 2L, Nrep = 2L
+#'     prior, 1L, Nrep = 1L
 #' )
 #' ## show estimated fractions
 #' fractions(Statescope)

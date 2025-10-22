@@ -4,38 +4,47 @@
 #' sample from scRNAseq data
 #'
 #'
-#' @param data SingleCellExperiment object of which to gather
+#' @param scRNAseq SingleCellExperiment object of which to gather
 #' fractions per sample
+#' @param ids character vector with ids of samples
+#' @param label_col character for the column name with the cell type labels
 #'
 #' @return DataFrame with fractions of all cell types per sample
-#' @importFrom scRNAseq SegerstolpePancreasData
+#' @importFrom SingleCellExperiment colData
+#' @importFrom methods is
 #' @export
 #'
 #' @examples
-#' ## Load data
-#' data <- scRNAseq::SegerstolpePancreasData()
+#' if (requireNamespace("scRNAseq", quietly = TRUE)) {
+#'     library(scRNAseq)
+#'     ## Load data
+#'     scRNAseq <- scRNAseq::SegerstolpePancreasData()
+#'     ## Subset to 3 healthy and 3 type 2 diabetes samples
+#'     scRNAseq <- scRNAseq[, scRNAseq$individual %in% c("H2", "H3", "H4",
+#'                                                      "T2D1", "T2D2", "T2D3")]
+#'     ## remove NA cells
+#'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
-#' ## Preprocess data
-#' data$donor <- data$individual
-#' data$label <- data$`cell type`
+#'     ## remove cells with less than 100 in total cohort
+#'     celltypes_to_remove <- names(table(scRNAseq$`cell type`)
+#'     [(table(scRNAseq$`cell type`) < 150)])
+#'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
-#' ## remove NA cells
-#' data <- data[, !is.na(data$label)]
-#'
-#' ## remove cells with less than 100 in total cohort
-#' celltypes_to_remove <- names(table(data$label)[(table(data$label) < 120)])
-#' data <- data[, !data$label %in% celltypes_to_remove]
-#'
-#' true_fractions <- gather_true_fractions(data)
-gather_true_fractions <- function(data) {
+#'     true_fractions <- gather_true_fractions(scRNAseq,
+#'         ids = scRNAseq$individual, label_col = "cell type"
+#'     )
+#' }
+gather_true_fractions <- function(scRNAseq, ids, label_col) {
+    if (!is(scRNAseq, 'SingleCellExperiment')){
+        stop('scRNAseq is not a SingleCellExperiment object')}
     ## Init list to save fractions
     true_fractions <- list()
 
     ## loop over samples
-    for (sample in unique(colData(data)$donor)) {
-        temp_data <- data[, colData(data)$donor == sample]
-        temp_true_fractions <- DataFrame(table(temp_data$label) /
-            ncol(temp_data))
+    for (sample in unique(ids)) {
+        temp_scRNAseq <- scRNAseq[, ids == sample]
+        temp_true_fractions <- DataFrame(table(
+            colData(temp_scRNAseq)[[label_col]])/ ncol(temp_scRNAseq))
 
         ## add True_fractions of sample to list
         true_fractions[sample] <- list(temp_true_fractions$Freq)

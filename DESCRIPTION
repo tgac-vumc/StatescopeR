@@ -1,7 +1,7 @@
 Package: StatescopeR
 Type: Package
 Title: StatescopeR framework for discovery of cell states from cell type-specific gene expression profiles inferred from bulk mRNA profiles
-Version: 0.99.21
+Version: 0.99.22
 Authors@R:
     c(person(given = "Mischa",
              family = "Stetketee",
@@ -11,22 +11,23 @@ Authors@R:
              person(given = 'KWF',
                     role = 'fnd'))
 Depends: R (>= 4.5.0)
-Imports: S4Vectors, SummarizedExperiment, reticulate, scRNAseq, dplyr, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot
-Suggest: scRNAseq
-Description: This package deconvolves bulk RNA into its cellular components using a scRNAseq references and optionally prior knowledge on the fraction of those components.
-License: MIT + file LICENSE
-Encoding: UTF-8
-RoxygenNote: 7.3.2
-StagedInstall: no
-biocViews: GeneExpression, RNASeq, SingleCell, Bayesian, Transcriptomics,  Software
-URL: https://github.com/tgac-vumc/StatescopeR 
-BugReports: https://github.com/tgac-vumc/StatescopeR/issues
+Imports: S4Vectors, SummarizedExperiment, reticulate, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot
 Suggests: 
     BiocStyle,
     knitr,
     RefManageR,
     rmarkdown,
     sessioninfo,
-    testthat (>= 3.0.0)
+    scRNAseq,
+    scuttle,
+    testthat
+Description: StatescopeR is an R wrapper around Statescope, a computational framework designed to discover cell states from cell type-specific gene expression profiles inferred from bulk RNA profiles.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.3
+StagedInstall: no
+biocViews: GeneExpression, RNASeq, SingleCell, Bayesian, Transcriptomics,  Software
+URL: https://github.com/tgac-vumc/StatescopeR 
+BugReports: https://github.com/tgac-vumc/StatescopeR/issues
 VignetteBuilder: knitr
 Config/testthat/edition: 3

@@ -15,7 +15,7 @@ StateDiscovery(
 )
 }
 \arguments{
-\item{Statescope}{Statescope obj from StatescopeRefinement.}
+\item{Statescope}{SummarizedExperiment object from Statescope Refinement.}
 
 \item{k}{number of cluster to choose, default is NA for automatic selection}
 
@@ -30,21 +30,22 @@ StateDiscovery(
 \item{Ncores}{number of cores to use for paralellization.}
 }
 \value{
-updated Statescope S4 object with statescores per celltype added
+SummarizedExperiment object with statescores per celltype added
 }
 \description{
 \code{StateDiscovery.R} Discovers states from refined ct-specific gep
 }
 \examples{
 ## Load Refined Statescope object
-load(system.file('extdata', 'example_Statescope_Refined.RData',
-package = 'StatescopeR'))
+load(system.file("extdata", "example_Statescope_Refined.RData",
+    package = "StatescopeR"
+))
 
 ## Discover states
-Statescope <- StateDiscovery(Statescope, k=2L, Ncores = 2L)
+Statescope <- StateDiscovery(Statescope, k = 2L, Ncores = 2L)
 
 ## Look at statescores and stateloadings
-statescores(Statescope)
-stateloadings(Statescope)
+S4Vectors::metadata(Statescope)$statescores
+S4Vectors::metadata(Statescope)$stateloadings
 
 }

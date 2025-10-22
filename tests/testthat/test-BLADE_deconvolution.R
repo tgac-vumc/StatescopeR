@@ -1,65 +1,69 @@
 library(scRNAseq)
+library(scuttle)
 
 test_that("BLADE deconvolution works properly with prior on simulation data", {
-    ## Load scRNAseq
-    scRNAseq <- scRNAseq::SegerstolpePancreasData()
+    ## Load SegerstolpePancreas data set
+    scRNAseq <- SegerstolpePancreasData()
 
-    ## Preprocess scRNAseq
-    scRNAseq$donor <- scRNAseq$individual
-    scRNAseq$label <- scRNAseq$`cell type`
-
+    ## remove duplicate genes
+    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
     ## Subset to 3 healthy and 3 type 2 diabetes samples
-    scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3',
-                                              'T2D1', 'T2D2')]
-    ## remove NA cells
-    scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
-    ## remove cells with less than 120 in total cohort
-    celltypes_to_remove <-
-        names(table(scRNAseq$label)[(table(scRNAseq$label) < 120)])
-    scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
-
-    ##  pseudobulk
-    load(system.file('extdata', 'example_pseudobulk.RData',
-                     package = 'StatescopeR'))
+    scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3', 'H4',
+                                                    'T2D1', 'T2D2', 'T2D3')]
+    ## remove cells with no cell type label
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
+    ## remove very rare cell types (<120 cells in total data set)
+    celltypes_to_remove <-names(table(scRNAseq$`cell type`)
+             [(table(scRNAseq$`cell type`) < 100)])
+    scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
+    ## Create pseudobulk and normalize to cp10k
+    pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
+    normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
+    pseudobulk = as(pseudobulk, "SummarizedExperiment")
+    rownames(pseudobulk) = rownames(scRNAseq)
 
     ##  Load signature
-    load(system.file('extdata', 'example_signature.RData',
-                     package = 'StatescopeR'))
+    load(system.file("extdata", "example_signature.RData",
+        package = "StatescopeR"
+    ))
 
     ##  Load selected genes
-    load(system.file('extdata', 'example_selected_genes.RData',
-    package = 'StatescopeR'))
+    load(system.file("extdata", "example_selected_genes.RData",
+        package = "StatescopeR"
+    ))
 
-    ## Optionally create prior expectation
-    prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-    prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
-
-    ## Tranpose it to nSample x nCelltype
-    prior <- t(prior)
+    ##  Load prior
+    load(system.file("extdata", "example_prior.RData",
+        package = "StatescopeR"
+    ))
 
     ## Perform Deconvolution with BLADE, refine gene expression estimates
     Statescope <- BLADE_deconvolution(
         signature, pseudobulk, selected_genes,
-        prior, 1L, Nrep = 1L ## Parallel causes workers to hang
+        prior, 1L,
+        Nrep = 1L ## Parallel causes workers to hang
     )
 
-    ## Compare true fractions with deconvolution results
-    true_fractions = gather_true_fractions(scRNAseq)
+    ##  Load true fractions
+    load(system.file("extdata", "example_true_fractions.RData",
+        package = "StatescopeR"
+    ))
 
     ## measure ct correlation with true fractions
-    cors = list()
-    for (ct in unique(rownames(true_fractions))){
-        cor = cor(as.matrix(true_fractions)[ct,],
-                  as.matrix(fractions(Statescope))[ct,])
+    cors <- list()
+    for (ct in unique(rownames(true_fractions))) {
+        cor <- cor(
+            as.matrix(true_fractions)[ct, ],
+            as.matrix(metadata(Statescope)$fractions)
+            [ct, names(true_fractions)]
+        )
 
         ## add cor to cors
-        cors[ct]= cor
-
+        cors[ct] <- cor
     }
 
     ## calculate median correlation with true fractions
-    median_cor = median(unlist(cors))
+    median_cor <- median(unlist(cors))
 
     expect_gt(median_cor, 0.4)
 })

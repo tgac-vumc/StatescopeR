@@ -7,17 +7,17 @@
 Refinement(Statescope, signature, bulk, cores = 1L)
 }
 \arguments{
-\item{Statescope}{Statescope obj from BLADE_deconvolution}
+\item{Statescope}{SummarizedExperiment object from BLADE_deconvolution}
 
 \item{signature}{SimpleList with mu and sigma, respectively mean
 gene expression and mean-variance corrected variance per cell type}
 
-\item{bulk}{mRNA to be deconvolved}
+\item{bulk}{mRNA to be refined}
 
 \item{cores}{number of cores to use for paralellization}
 }
 \value{
-updated Statescope S4 object with ct_specific_gep added
+updated SummarizedExperiment object with ct_specific_gep added
 }
 \description{
 \code{Refinement.R} # Perform Gene Expression Refinement
@@ -30,21 +30,43 @@ function value in a way that it tries to resemble the bulk RNA expression
 more than initially
 }
 \examples{
-## Load pseudobulk
-load(system.file('extdata', 'example_pseudobulk.RData',
-package = 'StatescopeR'))
+if (requireNamespace("scRNAseq", quietly = TRUE)) {
+    library(scRNAseq)
+    library(scuttle)
+    ## Load SegerstolpePancreas data set
+    scRNAseq <- SegerstolpePancreasData()
 
-## Load signature
-load(system.file('extdata', 'example_signature.RData',
-package = 'StatescopeR'))
+    ## remove duplicate genes
+    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-## Load Deconvolved Statescope object
-load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
-package = 'StatescopeR'))
+    ## Subset to 3 healthy and 3 type 2 diabetes samples
+    scRNAseq = scRNAseq[,scRNAseq$individual \%in\% c('H2', 'H3', 'H4',
+                                               'T2D1', 'T2D2', 'T2D3')]
+    ## remove cells with no cell type label
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## Run Refinement
-Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
+    ## remove very rare cell types (<150 cells in total data set)
+    celltypes_to_remove <-names(table(scRNAseq$`cell type`)
+        [(table(scRNAseq$`cell type`) < 150)])
+    scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
-## Show cell type specific gene expression profile estimates
-ct_specific_gep(Statescope)
+    ## Create pseudobulk and normalize to cp10k
+    pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
+    normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
+    pseudobulk = as(pseudobulk, "SummarizedExperiment")
+    rownames(pseudobulk) = rownames(scRNAseq)
+    ## Load signature
+    load(system.file("extdata", "example_signature.RData",
+        package = "StatescopeR"))
+
+    ## Load Deconvolved Statescope object
+    load(system.file("extdata", "example_Statescope_Deconvolved.RData",
+        package = "StatescopeR"))
+
+    ## Run Refinement
+    Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
+
+    ## Show cell type specific gene expression profile estimates
+    S4Vectors::metadata(Statescope)$ct_specific_gep
+    }
 }

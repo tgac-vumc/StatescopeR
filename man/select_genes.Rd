@@ -4,7 +4,7 @@
 \alias{select_genes}
 \title{Select genes using AutoGeneS}
 \usage{
-select_genes(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L)
+select_genes(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L, labels)
 }
 \arguments{
 \item{scRNAseq}{SingleCellExperiment object to use for gene selection, should
@@ -15,6 +15,8 @@ default is NA which lets autogenes itself pick}
 
 \item{n_hvg_genes}{int which allows the users to choose the number of highly
 variable genes}
+
+\item{labels}{character vector with cell type labels}
 }
 \value{
 Vector of genes to use for deconvolution
@@ -23,31 +25,40 @@ Vector of genes to use for deconvolution
 \code{select_genes.R} select genes using AutoGeneS for deconvolution
 }
 \examples{
-# Load scRNAseq
-scRNAseq <- scRNAseq::SegerstolpePancreasData()
+if (requireNamespace("scRNAseq", quietly = TRUE)) {
+    library(scRNAseq)
+    library(scuttle)
+    ## Load SegerstolpePancreas data set
+    scRNAseq <- SegerstolpePancreasData()
 
+    ## remove duplicate genes
+    scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-# remove duplicates gene names
-scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
+    ## Subset to 3 healthy and 3 type 2 diabetes samples
+    scRNAseq = scRNAseq[,scRNAseq$individual \%in\% c('H2', 'H3', 'H4',
+                                               'T2D1', 'T2D2', 'T2D3')]
+    ## remove cells with no cell type label
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## Preprocess scRNAseq
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
+    ## remove rare cell types (<150 cells in total data set)
+    celltypes_to_remove <-
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 150)])
+    scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
-## Subset to 2 healthy and  type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor \%in\% c('H2', 'H3',
-                                            'T2D1', 'T2D2')]
-## remove NA cells
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
+    ## remove NA cells
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-# remove cells with less than 120 in total cohort
-celltypes_to_remove <- names(table(scRNAseq$label)[(table(scRNAseq$label)
-< 120)])
-scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
+    # remove cells with less than 120 in total cohort
+    celltypes_to_remove <-
+     names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 120)])
+    scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
-## Normalize to log cp 10k
-scRNAseq <- normalize_scRNAseq(scRNAseq)
+    ## Normalize (cp10k) and logtransform scRNAseq
+    cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+    logcounts(scRNAseq) <- log1p(cpm(scRNAseq)/100)
 
-## Select genes by autogenes
-selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L) # 3 genes
+    ## Select genes by autogenes
+    selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L,
+     labels = scRNAseq$`cell type`) # 3 genes
+}
 }

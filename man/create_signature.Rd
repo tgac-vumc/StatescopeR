@@ -4,16 +4,18 @@
 \alias{create_signature}
 \title{Create scRNAseq Signature}
 \usage{
-create_signature(data, hvg_genes = FALSE, n_hvg_genes = 3000L)
+create_signature(scRNAseq, hvg_genes = FALSE, n_hvg_genes = 3000L, labels)
 }
 \arguments{
-\item{data}{SingleCellExperiment object of which to make signature}
+\item{scRNAseq}{SingleCellExperiment object of which to make signature}
 
 \item{hvg_genes}{boolean which chooses if mu and omega should be subset to
 highly variable genes or not}
 
 \item{n_hvg_genes}{int which allows the users to choose the number of highly
 variable genes}
+
+\item{labels}{character vector for the cell type labels}
 }
 \value{
 SimpleList DataFrames for Mu (mean per gene per cell type) and
@@ -23,9 +25,20 @@ Omega (variance corrected std.dev per gene per cell type)
 \code{create_signature} Creates signature from scRNAseq data
 }
 \examples{
-## Load data
-data <- scRNAseq::SegerstolpePancreasData()
-## Normalize and create signature
-data <- normalize_scRNAseq(data)
-signature <- create_signature(data)
+if (requireNamespace("scRNAseq", quietly = TRUE)) {
+    library(scRNAseq)
+    library(scuttle)
+    ## Load scRNaseq
+    scRNAseq <- scRNAseq::SegerstolpePancreasData()
+
+    ## remove NA cells
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
+
+    ## Normalize (cp10k) and logtransform scRNAseq
+    cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+    SingleCellExperiment::logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
+
+    ## Create signature
+    signature <- create_signature(scRNAseq, labels = scRNAseq$`cell type`)
+}
 }

@@ -44,24 +44,26 @@ bib <- c(
     StatescopeR = citation("StatescopeR")[1]
 )
 ```
+
 # Introduction
+
 StatescopeR is the R version of Statescope, a computational framework designed
 to discover cell states from cell type-specific gene expression profiles
-inferred from bulk RNA profiles.
-StatescopeR works in three steps:
-1) Multi-omic single cell RNAseq reference-based deconvolution
-2) Refinement of inferred cell type-specific gene expression profiles
-3) Cell state discovery
-In addition to bulk RNA and a single cell RNAseq (scRNAseq) reference, 
-StatescopeR can also integrate prior expectations of cell fractions in the bulk
-RNA. For example tumor fractions estimated by DNA copy number analysis or immune
-cell fractions by immunohistochemistry. Below is a manual for running
-StatescopeR with some pancreas scRNAseq data used for both the reference and 
+inferred from bulk RNA profiles. StatescopeR works in three steps:
+1) Multi-omic single cell RNAseq reference-based deconvolution 
+2) Refinement of inferred cell type-specific gene expression profiles 
+3) Cell state discovery 
+In addition to bulk RNA and a single cell RNAseq (scRNAseq) reference,
+StatescopeR can also integrate prior expectations of cell fractions in the
+bulk RNA. For example tumor fractions estimated by DNA copy number analysis or
+immune cell fractions by immunohistochemistry. Below is a manual for running
+StatescopeR with some pancreas scRNAseq data used for both the reference and
 pseudobulk which is deconvolved.
 
 # Running StatescopeR
 
 ## Installation
+
 StatescopeR is available through Bioconductor, install it using the following
 commands in R:
 
@@ -77,18 +79,19 @@ BiocManager::valid()
 ```
 
 ## Prepare scRNAseq data
+
 After the package is installed, we will be loading it and the scRNAseq package,
-from which we will use the SegerstolpePancreas data set for our example. 
-We will use it for two purposes:
-1) Creating a scRNAseq reference, as you would do for your own application.
-2) Creating pseudobulk to be deconvolved, which we can conveniently use for
-evaluation as well. In your own application this would likely be bulk mRNA 
-sequencing.
+from which we will use the SegerstolpePancreas data set for our example. We will
+use it for two purposes: 1) Creating a scRNAseq reference, as you would do for
+your own application. 2) Creating pseudobulk to be deconvolved, which we can
+conveniently use for evaluation as well. In your own application this would
+likely be bulk mRNA sequencing.
 
 ```{r 'Prepare scRNAseq data'}
 ## Load StatescopeR & scRNAseq (for example data)
 suppressMessages(library(StatescopeR))
 suppressMessages(library(scRNAseq))
+suppressMessages(library(scuttle))
 
 ## Load SegerstolpePancreas data set
 scRNAseq <- SegerstolpePancreasData()
@@ -96,54 +99,77 @@ scRNAseq <- SegerstolpePancreasData()
 ## remove duplicate genes
 scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-## Preprocess scRNAseq
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
-
 ## Subset to 3 healthy and 3 type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3', 'H4',
-                                                'T2D1', 'T2D2', 'T2D3')]
+scRNAseq <- scRNAseq[, scRNAseq$individual %in% c(
+    "H2", "H3", "H4",
+    "T2D1", "T2D2", "T2D3"
+)]
 ## remove cells with no cell type label
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
 ## remove very rare cell types (<100 cells in total data set)
-celltypes_to_remove <- 
-    names(table(scRNAseq$label)[(table(scRNAseq$label) < 100)])
-scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
+celltypes_to_remove <-
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 100)])
+scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 ```
+
 ## Prepare StatescopeR input
-StatescopeR takes the following inputs:
-1) scRNAseq reference/signature
+
+StatescopeR takes the following inputs: 1) scRNAseq reference/signature
 2) bulk mRNA to be deconvolved
-3) selected genes for deconvolution
+3) selected genes for deconvolution, by default this uses
+`r BiocStyle::Githubpkg("theislab/AutoGeneS")` 
 (optional) Prior expectation of fractions
 (optional) Hyperparameters (i.e. cores for parallelization, nrepfinal for
 maximum number of optimization iteration etc.)
 
 ```{r 'Prepare StatescopeR input'}
 ## Normalize (cp10k) and logtransform scRNAseq
-scRNAseq <- normalize_scRNAseq(scRNAseq)
+cpm(scRNAseq) <- calculateCPM(scRNAseq)
+logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 
 ## Create scRNAseq reference/signature with 50 hvg for quick example
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  50L)
+signature <- create_signature(scRNAseq,
+    hvg_genes = TRUE, n_hvg_genes = 7L,
+    labels = scRNAseq$`cell type`
+)
 
-## select subset of genes for deconvolution
-selected_genes <- select_genes(scRNAseq, 30L, 50L) # 30 genes from 50 hvg to
-                                                    #   make it quick
+## select subset of genes for deconvolution (30/50 hvg to make it quick)
+selected_genes <- select_genes(scRNAseq, 5L, 7L,
+    labels = scRNAseq$`cell type`
+)
 
-## Create pseudobulk and also lognormalize
-pseudobulk <- generate_pseudobulk(scRNAseq)
-pseudobulk <- normalize_bulkRNAseq(pseudobulk)
+## Create pseudobulk and normalize to cp10k (logging is done within Statescope)
+pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
+normcounts(pseudobulk) <- calculateCPM(pseudobulk) / 100
+pseudobulk <- as(pseudobulk, "SummarizedExperiment")
+rownames(pseudobulk) <- rownames(scRNAseq)
 
 ## (optional) Create prior expectation
-prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-prior[rownames(prior) != "ductal cell", ] <- NA #Keep only ductal cells as prior
-prior <- t(prior) # Tranpose it to nSample x nCelltype
+prior <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
+            label_col = "cell type") # Use True sc fractions for this
+prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cells
+prior <- t(prior) # Transpose it to nSample x nCelltype
 ```
 
 ## Run StatescopeR
-Now that all inputs have been prepared you can deconvolve the (pseudo)bulk mRNA 
-and discovery transcriptional states.
+
+Now that all inputs have been prepared you can deconvolve the (pseudo)bulk mRNA
+and discover transcriptional states. In short the modules work as follows: 
+BLADE_deconvolution employs Bayesian variational inference, modelling the bulk 
+gene expression level of each gene j in sample i by:
+\begin{equation}
+y_{ij} = log(\sum_{t} f_{i}^t exp(x_{ij}^t)) + \epsilon_{ij}
+\end{equation}
+with hidden variables $f_{i}^t$ and $x_{ij}^t$ denoting the fraction of cell
+type t for sample i and the expression of gene j for sample i in cell type j
+respectively. Refinement further optimizes cell type-specific gene expression
+profiles, $x_{ij}^t$, by fixing estimated cell fractions and putting more
+emphasis on capturing inter-sample heterogeneity over staying close to the
+single cell prior knowledge. StateDiscovery uses convex-NMF to cluster inferred
+cell type-specific gene expression profiles in an unsupervised manner. These
+modules are wrappers around the original Python version
+`r BiocStyle::Githubpkg("tgac-vumc/Statescope")`.
 
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
@@ -153,39 +179,43 @@ Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
 ## Run Refinement module
 Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 2L)
 
+
 ## Run State Discovery module
 Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
 ```
 
 ## Evaluate Statescope
+
 As we used pseudobulk from scRNAseq in this manual we are able to check if the
 output of StatescopeR is correct.
 
 ```{r 'Evaluate Statescope'}
 ## Count fractions of cells per sample in the pseudobulk
-true_fractions <- gather_true_fractions(scRNAseq)
+true_fractions <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
+                    label_col = "cell type")
 
 ## Plot correlation and RMSE with true fractions per celltype
 fraction_eval(Statescope, true_fractions)
 ```
 
 ## Downstream analysis/visualizations
-After you have run Statescope you can do all kinds of analyses, here we show 
+
+After you have run Statescope you can do all kinds of analyses, here we show
 some visualizations to give you an idea, but feel free to try whatever comes to
 your mind.
 
 ```{r 'Downstream analysis/visualizations'}
 ## Show predicted fractions
-fractions(Statescope)
+metadata(Statescope)$fractions
 
 ## Show predicted ductal cell type specific gene expression profiles
-assay(ct_specific_gep(Statescope)$`ductal cell`, "weighted_gep")
+assay(metadata(Statescope)$ct_specific_gep$`ductal cell`, "weighted_gep")
 
 ## Show ductal cell state scores per sample
-statescores(Statescope)$`ductal cell`
+metadata(Statescope)$statescores$`ductal cell`
 
 ## Show ductal cell state loadings
-stateloadings(Statescope)$`ductal cell`
+metadata(Statescope)$stateloadings$`ductal cell`
 
 ## Plot heatmap of fractions
 fraction_heatmap(Statescope)
@@ -195,49 +225,53 @@ barplot_stateloadings(Statescope)
 ```
 
 ## Group expectations
-If you have an expected fraction for a group of cell types instead of for one 
-specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also 
-allows you to give a group prior. Here we show an example where we know the 
-expected fraction of the pancreatic islet cells (alpha, beta & 
-gamma cells) together, but not their individual contributions.
+
+If you have an expected fraction for a group of cell types instead of for one
+specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also
+allows you to give a group prior. Here we show an example where we know the
+expected fraction of the pancreatic islet cells (alpha, beta & gamma cells)
+together, but not their individual contributions.
 
 ```{r 'Group expectations'}
 ## define cell types in one group
-grouped_cts <- c("alpha cell", "beta cell",  "gamma cell")
+grouped_cts <- c("alpha cell", "beta cell", "gamma cell")
 
-## init groups with 0
+## initialize group assignment matrix (nCelltype x nGroup) with 0's
+celltype_names <- colnames(signature$mu)
+group_names <- c("Group", setdiff(celltype_names, grouped_cts))
+nCelltype <- length(celltype_names)
+nGroup <- length(group_names)
+
 group <- matrix(0,
-    nrow = length(rownames(true_fractions)) - (length(grouped_cts) - 1),
-    ncol = length(rownames(true_fractions)),
-    dimnames = list(
-        c("Group", setdiff(
-            rownames(true_fractions), grouped_cts
-        )),
-        rownames(true_fractions)
-    )
+    nrow = nGroup, ncol = nCelltype,
+    dimnames = list(group_names, celltype_names)
 )
 
 
-## init prior
-prior <- matrix(nrow = ncol(pseudobulk), ncol = length(rownames(true_fractions))
-                -(length(grouped_cts) - 1), dimnames = list(
-    colnames(pseudobulk),
-    c("Group", setdiff(rownames(true_fractions), grouped_cts))
-))
+## initialize prior fraction matrix (nSamples x nCelltypes) with NA's
+nSamples <- ncol(pseudobulk)
+sample_names <- colnames(pseudobulk)
+
+prior <- matrix(
+    nrow = nSamples, ncol = nGroup,
+    dimnames = list(sample_names, group_names)
+)
 
 
-## Assign celltypes to groups
-for (ct in colnames(group)) {
+## Assign cell types to groups
+for (ct in celltype_names) {
     if (ct %in% grouped_cts) {
-        ## add group membership
+        ## assign cell type to group
         group["Group", ct] <- 1
     } else {
+        ## Assign cell type to its own group
         group[ct, ct] <- 1
     }
 }
 
 ## Add grouped prior fractions to prior
-prior[, "Group"] <- colSums(as.matrix(true_fractions[grouped_cts, ]))
+prior[names(true_fractions), "Group"] <- colSums(as.matrix(
+                                            true_fractions[grouped_cts, ]))
 
 
 ## init group prior
@@ -262,11 +296,10 @@ approach. Thank you!
 citation("StatescopeR")
 ```
 
-
 # Reproducibility
 
-The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])`
-was made possible thanks to:
+The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])` was made
+possible thanks to:
 
 -   R `r Citep(bib[["R"]])`
 -   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`

@@ -14,54 +14,57 @@
 library(StatescopeR)
 library(scRNAseq)
 
-## Load scRNAseq
-scRNAseq <- scRNAseq::SegerstolpePancreasData()
+## Load SegerstolpePancreas data set
+scRNAseq <- SegerstolpePancreasData()
 
-## remove duplicates gene names
+## remove duplicate genes
 scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-## Preprocess scRNAseq
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
+## Subset to 3 healthy and 3 type 2 diabetes samples
+scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3', 'H4',
+                                                'T2D1', 'T2D2', 'T2D3')]
+## remove cells with no cell type label
+scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## Subset to 2 healthy and  type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor %in% c('H2', 'H3',
-                                           'T2D1', 'T2D2')]
-
-## remove NA cells
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
-## remove cells with less than 120 in total cohort
+## remove rare cell types (<150 cells in total data set)
 celltypes_to_remove <-
-    names(table(scRNAseq$label)[(table(scRNAseq$label) < 120)])
-scRNAseq <- scRNAseq[, !scRNAseq$label %in% celltypes_to_remove]
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 150)])
+scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 
-## preprocessing
-scRNAseq <- normalize_scRNAseq(scRNAseq)
+## Gather true fractions and save
+true_fractions <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
+                                        label_col = 'cell type')
+save(true_fractions, file = 'inst/extdata/example_true_fractions.RData')
 
-## Create and normalized pseudobulk from scRNAseq
-pseudobulk <- generate_pseudobulk(scRNAseq)
+## Normalize (cp10k) and logtransform scRNAseq
+cpm(scRNAseq) <- calculateCPM(scRNAseq)
+logcounts(scRNAseq) <- log1p(cpm(scRNAseq)/100)
 
-pseudobulk <- normalize_bulkRNAseq(pseudobulk)
+## Create pseudobulk and normalize to cp10k (logging is done within Statescope)
+pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
+normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
+pseudobulk = as(pseudobulk, "SummarizedExperiment")
+rownames(pseudobulk) = rownames(scRNAseq)
 
-save(pseudobulk, file = 'inst/extdata/example_pseudobulk.RData')
-
-## Create signature from scRNAseq for deconvolution
-signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes = 5L)
+## Create scRNAseq reference/signature with 5 hvg for quick example
+signature <- create_signature(scRNAseq, hvg_genes = TRUE, n_hvg_genes =  5L,
+                              labels = scRNAseq$`cell type`)
 
 save(signature, file = 'inst/extdata/example_signature.RData')
 
-## Select genes optimized for deconvolution (small number of genes for speed)
-selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L)
+## select subset of genes for deconvolution (3/5 hvg to make it quick)
+selected_genes <- select_genes(scRNAseq, 3L, 5L,
+                               labels = scRNAseq$`cell type`)
 
 save(selected_genes, file = 'inst/extdata/example_selected_genes.RData')
 
-## Optionally create prior expectation
-prior <- gather_true_fractions(scRNAseq) # Use True sc fractions for this
-prior[rownames(prior) != "ductal cell", ] <- NA # Keep only ductal cell
+## (optional) Create prior expectation using True sc fractions
+prior <- gather_true_fractions(scRNAseq,
+            ids = scRNAseq$individual, label_col = 'cell type')
+prior[rownames(prior) != "ductal cell", ] <- NA #Keep only ductal cells as prior
+prior <- t(prior) # Transpose it to nSample x nCelltype
 
-## Tranpose it to nSample x nCelltype
-prior <- t(prior)
+save(prior, file = 'inst/extdata/example_prior.RData')
 
 ## Perform Deconvolution with BLADE, refine gene expression estimates
 Statescope <- BLADE_deconvolution(

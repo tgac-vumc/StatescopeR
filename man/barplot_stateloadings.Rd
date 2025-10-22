@@ -7,7 +7,7 @@
 barplot_stateloadings(Statescope, top_n = 1)
 }
 \arguments{
-\item{Statescope}{Statescope obj from StateDiscovery}
+\item{Statescope}{SummarizedExperiment object from StateDiscovery}
 
 \item{top_n}{integer selecting how many genes to show per state}
 }
@@ -19,8 +19,9 @@ Create a barplot of top stateloadings
 }
 \examples{
 #' ## Load Discovered Statescope object
-load(system.file('extdata', 'example_Statescope_Discovered.RData',
-package = 'StatescopeR'))
+load(system.file("extdata", "example_Statescope_Discovered.RData",
+    package = "StatescopeR"
+))
 
 ## Plot fraction heatmap
 barplot_stateloadings(Statescope, top_n = 1)

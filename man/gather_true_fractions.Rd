@@ -4,11 +4,15 @@
 \alias{gather_true_fractions}
 \title{Gather true fractions}
 \usage{
-gather_true_fractions(data)
+gather_true_fractions(scRNAseq, ids, label_col)
 }
 \arguments{
-\item{data}{SingleCellExperiment object of which to gather
+\item{scRNAseq}{SingleCellExperiment object of which to gather
 fractions per sample}
+
+\item{ids}{character vector with ids of samples}
+
+\item{label_col}{character for the column name with the cell type labels}
 }
 \value{
 DataFrame with fractions of all cell types per sample
@@ -18,19 +22,23 @@ DataFrame with fractions of all cell types per sample
 sample from scRNAseq data
 }
 \examples{
-## Load data
-data <- scRNAseq::SegerstolpePancreasData()
+if (requireNamespace("scRNAseq", quietly = TRUE)) {
+    library(scRNAseq)
+    ## Load data
+    scRNAseq <- scRNAseq::SegerstolpePancreasData()
+    ## Subset to 3 healthy and 3 type 2 diabetes samples
+    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c("H2", "H3", "H4",
+                                                     "T2D1", "T2D2", "T2D3")]
+    ## remove NA cells
+    scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## Preprocess data
-data$donor <- data$individual
-data$label <- data$`cell type`
+    ## remove cells with less than 100 in total cohort
+    celltypes_to_remove <- names(table(scRNAseq$`cell type`)
+    [(table(scRNAseq$`cell type`) < 150)])
+    scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
-## remove NA cells
-data <- data[, !is.na(data$label)]
-
-## remove cells with less than 100 in total cohort
-celltypes_to_remove <- names(table(data$label)[(table(data$label) < 120)])
-data <- data[, !data$label \%in\% celltypes_to_remove]
-
-true_fractions <- gather_true_fractions(data)
+    true_fractions <- gather_true_fractions(scRNAseq,
+        ids = scRNAseq$individual, label_col = "cell type"
+    )
+}
 }

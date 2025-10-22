@@ -7,7 +7,7 @@
 fraction_heatmap(Statescope, ...)
 }
 \arguments{
-\item{Statescope}{Statescope obj from BLADE_deconvolution}
+\item{Statescope}{SummarizedExperiment object from BLADE_deconvolution}
 
 \item{...}{other parameters to pass to  [ComplexHeatmap::Heatmap()]}
 }
@@ -19,8 +19,9 @@ Create a heatmap of the estimated fractions
 }
 \examples{
 ## Load Deconvolved Statescope object
-load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
-package = 'StatescopeR'))
+load(system.file("extdata", "example_Statescope_Deconvolved.RData",
+    package = "StatescopeR"
+))
 
 ## Plot fraction heatmap
 fraction_heatmap(Statescope)

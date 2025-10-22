@@ -7,7 +7,7 @@
 fraction_eval(Statescope, true_fractions)
 }
 \arguments{
-\item{Statescope}{Statescope obj from BLADE_deconvolution}
+\item{Statescope}{SummarizedExperiment object from BLADE_deconvolution}
 
 \item{true_fractions}{s4 Dataframe with true fractions to compare with
 estimated fractions}
@@ -19,27 +19,14 @@ A barplot rendered to the active graphics device
 Create a barplot of TRUE vs estimated cfs
 }
 \examples{
-## Load scRNAseq
-scRNAseq <- scRNAseq::SegerstolpePancreasData()
-## Preprocess scRNAseq
-scRNAseq$donor <- scRNAseq$individual
-scRNAseq$label <- scRNAseq$`cell type`
-## Subset to 2 healthy and 2 type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$donor \%in\% c('H2', 'H3',
-                                            'T2D1', 'T2D2')]
-## remove NA cells
-scRNAseq <- scRNAseq[, !is.na(scRNAseq$label)]
-
-## remove cells with less than 120 in total cohort
-celltypes_to_remove <-
-    names(table(scRNAseq$label)[(table(scRNAseq$label) < 120)])
-scRNAseq <- scRNAseq[, !scRNAseq$label \%in\% celltypes_to_remove]
+## Load True fractions
+load(system.file("extdata", "example_true_fractions.RData",
+    package = "StatescopeR"))
 
 ## Load Deconvolved Statescope object
-load(system.file('extdata', 'example_Statescope_Deconvolved.RData',
-package = 'StatescopeR'))
+load(system.file("extdata", "example_Statescope_Deconvolved.RData",
+    package = "StatescopeR"))
 
 ## ## Plot fraction correlation and RMSE per ct
-fraction_eval(Statescope, gather_true_fractions(scRNAseq))
-
+fraction_eval(Statescope, true_fractions)
 }

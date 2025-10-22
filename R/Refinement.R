@@ -33,15 +33,15 @@
 #'     ## remove duplicate genes
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
-#'     ## Subset to 3 healthy and 3 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3', 'H4',
-#'                                                'T2D1', 'T2D2', 'T2D3')]
+#'     ## Subset to 2 healthy and 3 type 2 diabetes samples
+#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3',
+#'                                                'T2D1', 'T2D2')]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
-#'     ## remove very rare cell types (<150 cells in total data set)
+#'     ## remove very rare cell types (<120 cells in total data set)
 #'     celltypes_to_remove <-names(table(scRNAseq$`cell type`)
-#'         [(table(scRNAseq$`cell type`) < 150)])
+#'         [(table(scRNAseq$`cell type`) < 120)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
 #'     ## Create pseudobulk and normalize to cp10k

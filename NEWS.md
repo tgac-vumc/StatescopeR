@@ -11,7 +11,7 @@
 -   Adjusting Vignette & Examples to make Check process quick enough to not
 timeout
 
-## StatescopeR 0.99.22 (22-10-2025)
+## StatescopeR 0.99.22 & 0.99.23 (22-10-2025)
 
 - Revision after review, in short: Some documentation changes, removal of custom
 functions in favor of existing good implementations & removal of new classes in 

@@ -99,17 +99,15 @@ scRNAseq <- SegerstolpePancreasData()
 ## remove duplicate genes
 scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-## Subset to 3 healthy and 3 type 2 diabetes samples
-scRNAseq <- scRNAseq[, scRNAseq$individual %in% c(
-    "H2", "H3", "H4",
-    "T2D1", "T2D2", "T2D3"
-)]
+## Subset to 2 healthy and 3 type 2 diabetes samples
+scRNAseq <- scRNAseq[, scRNAseq$individual %in% c("H2", "H3",
+                                                    "T2D1", "T2D2")]
 ## remove cells with no cell type label
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## remove very rare cell types (<100 cells in total data set)
+## remove very rare cell types (<120 cells in total data set)
 celltypes_to_remove <-
-    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 100)])
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 120)])
 scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 ```
 
@@ -128,14 +126,14 @@ maximum number of optimization iteration etc.)
 cpm(scRNAseq) <- calculateCPM(scRNAseq)
 logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 
-## Create scRNAseq reference/signature with 50 hvg for quick example
+## Create scRNAseq reference/signature with 5 hvg for quick example
 signature <- create_signature(scRNAseq,
-    hvg_genes = TRUE, n_hvg_genes = 7L,
+    hvg_genes = TRUE, n_hvg_genes = 5L,
     labels = scRNAseq$`cell type`
 )
 
-## select subset of genes for deconvolution (30/50 hvg to make it quick)
-selected_genes <- select_genes(scRNAseq, 5L, 7L,
+## select subset of genes for deconvolution (3/5 hvg to make it quick)
+selected_genes <- select_genes(scRNAseq, 3L, 5L,
     labels = scRNAseq$`cell type`
 )
 
@@ -174,14 +172,14 @@ modules are wrappers around the original Python version
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
 Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes, prior,
-    cores = 2L)
+                                    cores = 1L, Nrep = 1L)
 
 ## Run Refinement module
 Statescope <- Refinement(Statescope, signature, pseudobulk, cores = 2L)
 
 
-## Run State Discovery module
-Statescope <- StateDiscovery(Statescope, Ncores = 2L, max_clusters = 4L)
+## Run State Discovery module (pick k=2 for quick example)
+Statescope <- StateDiscovery(Statescope, k = 2L, Ncores = 2L)
 ```
 
 ## Evaluate Statescope
@@ -281,8 +279,9 @@ group_prior <- list("Group" = group, "Expectation" = prior)
 ## a ductal cell prior this time
 Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes,
     group_prior,
-    cores = 2L
-)
+    cores = 1L,
+    Nrep = 1L
+    )
 ```
 
 # Citing `StatescopeR`

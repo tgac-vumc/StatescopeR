@@ -11,10 +11,14 @@
 -   Adjusting Vignette & Examples to make Check process quick enough to not
 timeout
 
-## StatescopeR 0.99.22 & 0.99.23 (22-10-2025)
+## StatescopeR 0.99.22 (22-10-2025)
 
 - Revision after review, in short: Some documentation changes, removal of custom
 functions in favor of existing good implementations & removal of new classes in 
 favor of adding to SummarizedExperiment metadata, see 
 https://github.com/Bioconductor/Contributions/issues/3838#issuecomment-3261548846
 for more details.
+
+## StatescopeR 0.99.23 & 0.99.24 (23-10-2025)
+-   Minimizing Vignette & Examples to make Check process quick enough to not
+timeout

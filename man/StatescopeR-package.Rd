@@ -6,14 +6,14 @@
 \alias{StatescopeR}
 \title{The StatescopeR package}
 \description{
-StatescopeR framework for discovery of cell states from cell type-specific gene expression profiles inferred from bulk mRNA profiles
+framework for discovery of cell states from bulk mRNA profiles
 }
 \section{Details}{
 
  StatescopeR starts from lognormalized cp10k single cell data and a bulk RNA
- dataset to be used for deconvolution and cell state analysis. From this point
- StatescopeR has some functions to create a signature and select genes for
- deconvolution.
+ dataset to be used for deconvolution and cell state analysis. From this
+ point StatescopeR has some functions to create a signature and select genes
+ for deconvolution.
  \code{\link{create_signature}} creates a signature of lognormalized cp10k
      single cell data for deconvolution and cell state analysis.
  \code{\link{select_genes}} selects genes which best discriminate cell types

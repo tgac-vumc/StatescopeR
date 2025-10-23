@@ -37,7 +37,7 @@
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'     ## Subset to 2 healthy and 3 type 2 diabetes samples
 #'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3',
-#'                                                'T2D1', 'T2D2',)]
+#'                                                'T2D1', 'T2D2')]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'

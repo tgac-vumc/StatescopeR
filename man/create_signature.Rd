@@ -34,9 +34,6 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     ## remove NA cells
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-    ## Subset to first 1k genes
-    scRNAseq = scRNAseq[1:1000,]
-
     ## Normalize (cp10k) and logtransform scRNAseq
     cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
     SingleCellExperiment::logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)

@@ -26,15 +26,15 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     library(scRNAseq)
     ## Load data
     scRNAseq <- scRNAseq::SegerstolpePancreasData()
-    ## Subset to 2 healthy and 3 type 2 diabetes samples
-    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c("H2", "H3",
+    ## Subset to 1 healthy and 3 type 2 diabetes samples
+    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c("H3",
                                                      "T2D1", "T2D2")]
     ## remove NA cells
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-    ## remove cells with less than 120 in total cohort
+    ## remove cells with less than 100 in total cohort
     celltypes_to_remove <- names(table(scRNAseq$`cell type`)
-    [(table(scRNAseq$`cell type`) < 120)])
+    [(table(scRNAseq$`cell type`) < 100)])
     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
     true_fractions <- gather_true_fractions(scRNAseq,

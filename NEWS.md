@@ -24,6 +24,6 @@ for more details.
 timeout
 
 
-## StatescopeR 0.99.25-0.99.29 (26-11-2025)
+## StatescopeR 0.99.25-0.99.30 (26-11-2025)
 -   R dependency >= 4.6.0 reflecting new Bioconductor release and minimized
 number of samples for deconvolution for quicker vignette/examples

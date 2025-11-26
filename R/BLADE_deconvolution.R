@@ -36,7 +36,7 @@
 #'     ## remove duplicate genes
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'     ## Subset to 1 healthy and 2 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2',
+#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
 #'                                                'T2D1', 'T2D2')]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
@@ -45,9 +45,6 @@
 #'     celltypes_to_remove <- names(table(scRNAseq$`cell type`)
 #'         [(table(scRNAseq$`cell type`) < 100)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
-#'
-#'     ## Subset to first 1k genes
-#'     scRNAseq = scRNAseq[1:1000,]
 #'
 #'     ## Create pseudobulk and normalize to cp10k
 #'     pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
@@ -79,7 +76,7 @@
 BLADE_deconvolution <- function(signature, bulk, genes, prior = NULL,
     cores = 1L, Alpha = 1L, Alpha0 = 1000L, Kappa0 = 1L, sY = 1L, Nrep = 10L,
         Nrepfinal = 1000L) {
-    if (any(colSums(as.matrix(assay(bulk, "normcounts"))) != 10000)){
+    if (any(round(colSums(as.matrix(assay(bulk, "normcounts")))) != 10000)){
         stop('bulk is not in counts per 10k')}
     ## make matrices from Mu, omega, bulk & prior
     Mu <- as.matrix(signature$mu[genes, ])

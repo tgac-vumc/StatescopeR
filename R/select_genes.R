@@ -29,7 +29,7 @@
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #'     ## Subset to 1 healthy and 2 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2',
+#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
 #'                                                'T2D1', 'T2D2')]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
@@ -41,9 +41,6 @@
 #'
 #'     ## remove NA cells
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
-#'
-#'     ## Subset to first 1k genes
-#'     scRNAseq = scRNAseq[1:1000,]
 #'
 #'     ## Normalize (cp10k) and logtransform scRNAseq
 #'     cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)

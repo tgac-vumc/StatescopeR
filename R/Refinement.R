@@ -34,7 +34,7 @@
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #'     ## Subset to 1 healthy and 2 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2',
+#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
 #'                                                'T2D1', 'T2D2')]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
@@ -43,9 +43,6 @@
 #'     celltypes_to_remove <-names(table(scRNAseq$`cell type`)
 #'         [(table(scRNAseq$`cell type`) < 100)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
-#'
-#'     ## Subset to first 1k genes
-#'     scRNAseq = scRNAseq[1:1000,]
 #'
 #'     ## Create pseudobulk and normalize to cp10k
 #'     pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)

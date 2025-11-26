@@ -24,6 +24,7 @@ for more details.
 timeout
 
 
-## StatescopeR 0.99.25 & 0.99.26 (26-11-2025)
+## StatescopeR 0.99.25-0.99.27 (26-11-2025)
 -   R dependency >= 4.6.0 reflecting new Bioconductor release and minimized
-geneset of scRNAseq for quicker vignette/examples
+geneset of scRNAseq and # of samples for deconvolution 
+for quicker vignette/examples

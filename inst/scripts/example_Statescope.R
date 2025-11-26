@@ -21,18 +21,18 @@ scRNAseq <- SegerstolpePancreasData()
 ## remove duplicate genes
 scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 
-## Subset to 2 healthy and 3 type 2 diabetes samples
-scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H2', 'H3',
-                                                'T2D1', 'T2D2')]
+## Subset to 1 healthy and 2 type 2 diabetes samples
+scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
+                                                'T2D1','T2D2')]
 ## remove cells with no cell type label
 scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
-## remove rare cell types (<120 cells in total data set)
+## remove rare cell types (<100 cells in total data set)
 celltypes_to_remove <-
-    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 120)])
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 100)])
 scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 
-## Subset to first 3k genes
+## Subset to first 1k genes
 scRNAseq = scRNAseq[1:1000,]
 
 ## Gather true fractions and save

@@ -32,6 +32,9 @@ celltypes_to_remove <-
     names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 120)])
 scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 
+## Subset to first 3k genes
+scRNAseq = scRNAseq[1:1000,]
+
 ## Gather true fractions and save
 true_fractions <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
                                         label_col = 'cell type')

@@ -22,3 +22,8 @@ for more details.
 ## StatescopeR 0.99.23 & 0.99.24 (23-10-2025)
 -   Minimizing Vignette & Examples to make Check process quick enough to not
 timeout
+
+
+## StatescopeR 0.99.25 (26-11-2025)
+-   R dependency >= 4.6.0 reflecting new Bioconductor release and minimized
+geneset of scRNAseq for quicker vignette/examples

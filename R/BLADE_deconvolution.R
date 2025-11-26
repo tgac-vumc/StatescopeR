@@ -46,6 +46,9 @@
 #'         [(table(scRNAseq$`cell type`) < 120)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
+#'     ## Subset to first 1k genes
+#'     scRNAseq = scRNAseq[1:1000,]
+#'
 #'     ## Create pseudobulk and normalize to cp10k
 #'     pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
 #'     normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100

@@ -11,7 +11,9 @@ See https://github.com/tgac-vumc/Statescope for the original Python version.
 
 
 ## Installation
+```
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("StatescopeR")
+```

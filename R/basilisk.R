@@ -24,7 +24,8 @@ deconvolution <- BasiliskEnvironment(
         "numpy==1.23.5",
         "scipy==1.14.1",
         "scikit-learn==1.1.3",
-        "matplotlib==3.9.3"
+        "matplotlib==3.9.3",
+        "torch"
     ),
     channels = c("bioconda", "conda-forge")
 )

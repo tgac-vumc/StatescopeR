@@ -11,9 +11,13 @@ See https://github.com/tgac-vumc/Statescope for the original Python version.
 
 
 ## Installation
+To install this package, start R (version "4.6") and enter: 
 ```
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
+    
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
 
 BiocManager::install("StatescopeR")
 ```

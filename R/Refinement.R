@@ -68,7 +68,7 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
         stop('Statescope is not a SummarizedExperiment object')}
     ## Prepare Refinement input
     BLADE_obj <- list("final_obj" = metadata(Statescope)$BLADE_output[[1]],
-        "outs" = metadata(Statescope)$BLADE_output[[3]])
+        "outs" = metadata(Statescope)$BLADE_output[[2]])
     Mu <- as.matrix(signature$mu)
     Omega <- as.matrix(signature$omega)
     genes <- rownames(Mu) # subset bulk on signature genes
@@ -76,38 +76,36 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
 
     ## start basilisk & Run Refinement
     proc <- basiliskStart(deconvolution)
-    Statescope <- basiliskRun(proc, fun = function(BLADE_obj, Mu, Omega,
-    bulk_matrix, cores) {
+    Statescope <- basiliskRun(proc, fun = function(Statescope, BLADE_obj, Mu,
+                                                    Omega, bulk_matrix, cores) {
             ## import BLADE
             reticulate::source_python(system.file("python/BLADE.py",
                 package = "StatescopeR"))
             ## Run refinement
             result <- Purify_AllGenes(BLADE_obj, Mu, Omega, bulk_matrix, cores)
-
-            ## update BLADE results
-            S4Vectors::metadata(Statescope)$BLADE_output <- result
-
+            ## Add refinement output
+            S4Vectors::metadata(Statescope)$Refinement_output <- result
             ## Gather ct specific gep
             ct_specific_gep <- list()
-            for (i in seq_along(colnames(signature$mu))) {
-                temp_gep <- t(result[[1]]$Nu[, , i])
+            for (i in seq_along(colnames(Mu))) {
+                temp_gep <- t(result[[1]][, , i])
                 ## Weight by Omega
                 omega_weighted_gep <- (temp_gep - colMeans(temp_gep)) *
-                    result[[1]]$Omega[, i]
+                    result[[2]][, i]
                 ## Name samples and genes
                 omega_weighted_gep_df <-
                     S4Vectors::DataFrame(omega_weighted_gep)
                 colnames(omega_weighted_gep_df) <- colnames(bulk_matrix)
                 rownames(omega_weighted_gep_df) <- rownames(bulk_matrix)
                 ## add to ct_specific_gep list
-                ct_specific_gep[colnames(signature$mu)[i]] <-
+                ct_specific_gep[colnames(Mu)[i]] <-
                     SummarizedExperiment::SummarizedExperiment(
                         assays = S4Vectors::SimpleList(weighted_gep =
                                                         omega_weighted_gep_df))}
             ## Add cell type specific gene expression to Statescope obj
             S4Vectors::metadata(Statescope)$ct_specific_gep <- ct_specific_gep
-            Statescope}, BLADE_obj = BLADE_obj, Mu = Mu, Omega = Omega,
-        bulk_matrix = bulk_matrix, cores = cores)
+            Statescope}, Statescope = Statescope, BLADE_obj = BLADE_obj,
+            Mu = Mu, Omega = Omega, bulk_matrix = bulk_matrix, cores = cores)
     ## stop basilisk
     basiliskStop(proc)
 

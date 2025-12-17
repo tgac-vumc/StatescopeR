@@ -19,15 +19,16 @@ deconvolution <- BasiliskEnvironment(
     envname = "deconvolution",
     pkgname = "StatescopeR",
     packages = c(
-        "python==3.11", "numba==0.59.1",
-        "pandas==1.5.3", "joblib==1.4.2",
-        "numpy==1.23.5",
-        "scipy==1.14.1",
-        "scikit-learn==1.1.3",
-        "matplotlib==3.9.3",
-        "torch"
+        "python==3.11", "numba==0.62.1",
+        "pandas==1.5.3", "joblib==1.5.2",
+        "numpy==1.26.4",
+        "scipy==1.16.3",
+        "scikit-learn==1.5.2",
+        "matplotlib==3.6.3",
+        "mkl==2025.3.0",
+        "torch==2.9.1", "dill==0.3.4"
     ),
-    channels = c("bioconda", "conda-forge")
+    channels = c("bioconda", "conda-forge", "pytorch")
 )
 
 statescope <- BasiliskEnvironment(
@@ -35,15 +36,14 @@ statescope <- BasiliskEnvironment(
     pkgname = "StatescopeR",
     packages = c(
         "python==3.11",
-        "numba==0.59.1",
+        "numba==0.62.1",
         "pandas==1.5.3",
-        "joblib==1.4.2",
+        "joblib==1.5.2",
         "numpy==1.23.5",
-        "scipy==1.14.1",
-        "matplotlib==3.9.3",
-        "cvxopt==1.3.2",
+        "scipy==1.15.3",
+        "matplotlib==3.6.3",
         "seaborn==0.13.2",
-        "scikit-learn==1.6.0"
+        "scikit-learn==1.5.2"
     ),
     channels = c("bioconda", "conda-forge")
 )

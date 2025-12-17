@@ -101,16 +101,13 @@ BLADE_deconvolution <- function(signature, bulk, genes, prior = NULL,
                 Expectation = prior, Alpha = Alpha, Alpha0 = Alpha0,
                 Kappa0 = Kappa0, sY = sY, Nrep = Nrep, Njob = cores,
                 IterMax = Nrepfinal)
-
             ## make fractions DF
-            fractions <- S4Vectors::DataFrame(t(result[[1]]$ExpF(
-                result[[1]]$Beta)), row.names = colnames(Mu))
+            fractions <- S4Vectors::DataFrame(t(result[[3]]),
+                                                    row.names = colnames(Mu))
             colnames(fractions) <- colnames(bulk_matrix)
-
             ## Make named list from result for use in refinement
-            result[[1]] <- list("Alpha" = result[[1]]$Alpha, "Beta" =
-                                    result[[1]]$Beta)
-            result[[3]] <- NULL # Remove Python object
+            result[[1]] <- list("Alpha" = result[[1]][[1]], "Beta" =
+                                    result[[1]][[2]])
             ## Save BLADE parameters and fractions to metadata
             S4Vectors::metadata(bulk)$BLADE_output <- result
             S4Vectors::metadata(bulk)$fractions <- fractions

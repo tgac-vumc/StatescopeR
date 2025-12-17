@@ -1109,7 +1109,6 @@ def Framework_Iterative(X, stdX, Y, Ind_Marker=None,
     args = locals()
     Ngene, Nsample = Y.shape
     Ncell = X.shape[1]
-
     if Ind_Marker is None:
         Ind_Marker = [True] * Ngene
 
@@ -1143,13 +1142,16 @@ def Framework_Iterative(X, stdX, Y, Ind_Marker=None,
                 )
         # e2 = timer()
         # print("Time (s) Iterative Optim loop", e2-s2)
-
         ## Final BLADE results
         # s3 = timer()
         outs, convs, Reps = zip(*outs)
         cri = [obj.E_step(obj.Nu, obj.Beta, obj.Omega).cpu().numpy() for obj in outs]
         out = outs[np.nanargmax(cri)]
         conv = convs[np.nanargmax(cri)]
+        ## Only for StatescopeR due to python -> R conversions
+        alpha = out.Alpha.cpu().numpy()
+        beta = out.Beta.cpu().numpy()
+        fractions = out.ExpF(out.Beta).cpu().numpy()
         # e3 = timer()
         # print("Time (s) Final part framework", e3-s3)
     else:
@@ -1172,7 +1174,7 @@ def Framework_Iterative(X, stdX, Y, Ind_Marker=None,
         out = outs[np.nanargmax(cri)]
         conv = convs[np.nanargmax(cri)]
 
-    return out, conv, zip(outs, cri), args
+    return [alpha, beta], np.array(cri), fractions, args ## Specific to StatescopeR
 
 
 
@@ -1955,17 +1957,8 @@ def Parallel_Purification(obj,weight, iter=1000, minDiff=10e-4, Update_SigmaY=Fa
     return obj, obj_func
 
 def Purify_AllGenes(BLADE_object, Mu, Omega, Y, Ncores,Weight=100,sY = 1,Alpha0 = 1000,Kappa0 = 1):
-    Mu = ensure_numpy(Mu)
-    Omega = ensure_numpy(Omega)
-    Y = ensure_numpy(Y)
-    obj = BLADE_object
-    obj.Alpha = convert_to_numpy(obj.Alpha)
-    obj.SigmaY = convert_to_numpy(obj.SigmaY)
-    obj.Mu0 = convert_to_numpy(obj.Mu0)
-    obj.Beta0 = convert_to_numpy(obj.Beta0)
-    obj.Kappa0 = convert_to_numpy(obj.Kappa0)
-    obj.Beta = convert_to_numpy(obj.Beta)
-    
+    ## Removed all numpy checking as it is passing through R anyway
+    obj = BLADE_object['final_obj']
     Ngene, Nsample = Y.shape
     Ncell = Mu.shape[1]
     logY = np.log(Y+1)
@@ -1983,16 +1976,17 @@ def Purify_AllGenes(BLADE_object, Mu, Omega, Y, Ncores,Weight=100,sY = 1,Alpha0 
             Y = np.atleast_2d(logY[ix,:]),
             SigmaY = np.atleast_2d(SigmaY[ix,:]),
             Mu0 = np.atleast_2d(Mu[ix,:]),
-            Alpha = obj.Alpha,
+            Alpha = obj['Alpha'], # somehow needed brackets for R
             Alpha0 = Alpha0,
             Beta0 = np.atleast_2d(Beta0[ix,:]),
             Kappa0 =Kappa0,
             Nu_Init = np.reshape(np.atleast_3d(Nu_Init[:,ix,:]), (Nsample,1,Ncell)), 
             Omega_Init = np.atleast_2d(Omega[ix,:]),
-            Beta_Init = obj.Beta,
+            Beta_Init = obj['Beta'], # somehow needed brackets for R
             fix_Beta=True))
-
-    outs = Parallel(n_jobs=Ncores, verbose=10)(
+    
+    with parallel_backend('threading', n_jobs=Ncores):
+        outs = Parallel(n_jobs=Ncores, verbose=10)(
                 delayed(Parallel_Purification)(obj,Weight)
                     for obj in objs
                 )
@@ -2028,8 +2022,8 @@ def Purify_AllGenes(BLADE_object, Mu, Omega, Y, Ncores,Weight=100,sY = 1,Alpha0 
     ## Create final merged BLADE obj to return
     obj = BLADE_numba(Y, SigmaY, Mu0, Alpha, Alpha0, Beta0, Kappa0, Nu_Init, Omega_Init, Beta_Init, fix_Beta =True)
     obj.log = logs
-    
-    return obj
+
+    return obj.Nu, obj.Omega, obj_func
 
 
 

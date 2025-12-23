@@ -125,10 +125,10 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       ## Remove unnecessary files according to:
-      # https://github.com/marketplace/actions/free-disk-space-ubuntu
+      # https://github.com/BRAINSia/free-disk-space
       - name: Free Disk Space (Ubuntu)
         if: runner.os == 'Linux'
-        uses: jlumbroso/free-disk-space@main
+        uses: BRAINSia/free-disk-space@v2
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB

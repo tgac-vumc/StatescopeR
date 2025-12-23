@@ -141,9 +141,9 @@ jobs:
           sudo rm -rf /usr/share/swift
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
          
-        # Verify gains
-        df -h /
-        
+          # Verify gains
+          df -h /
+
       ## Create the path that will be used for caching packages on Linux
       - name: Create R_LIBS_USER on Linux
         if: runner.os == 'Linux'

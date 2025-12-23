@@ -125,14 +125,28 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       ## Remove unnecessary files according to:
-      # https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+      # https://github.com/actions/runner-images/issues/2840#issuecomment-3605992264
       - name: Remove unnecessary files to release disk space
         if: runner.os == 'Linux'
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo df -TBG /
+          sudo rm -rf \
+          "$AGENT_TOOLSDIRECTORY" \
+          /opt/ghc \
+          /opt/google/chrome \
+          /opt/microsoft/msedge \
+          /opt/microsoft/powershell \
+          /opt/pipx \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/lib/node_modules \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/swift
+          sudo df -TBG /
         
       ## Create the path that will be used for caching packages on Linux
       - name: Create R_LIBS_USER on Linux

@@ -125,20 +125,24 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       ## Remove unnecessary files according to:
-      # https://github.com/endersonmenezes/free-disk-space
-
-      - name: Export env variables for Free Disk Space (Ubuntu)
+      # https://www.geraldonit.com/mastering-disk-space-on-github-actions-runners-a-deep-dive-into-cleanup-strategies-for-x64-and-arm64-runners/
+      - name: Clean Up Disk Space
         if: runner.os == 'Linux'
         run: |
-          export AGENT_TOOLSDIRECTORY=/usr/local/bin
-          
-      - name: Free Disk Space (Ubuntu)
-        if: runner.os == 'Linux'
-        uses: endersonmenezes/free-disk-space@v3
-        with:
-          remove_android: true
-          remove_dotnet: true
-          remove_folders: "/usr/share/swift /usr/local/julia"
+          # Space usage before cleanup
+          df -h /
+           
+          # Remove unused tool caches (comment any required ones with #)
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+         
+        # Verify gains
+        df -h /
         
       ## Create the path that will be used for caching packages on Linux
       - name: Create R_LIBS_USER on Linux

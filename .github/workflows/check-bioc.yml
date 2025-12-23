@@ -111,6 +111,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+        
+      ## https://github.com/actions/runner-images/issues/2840#issuecomment-3641541098
+      - name: Claim disk space
+        # Remove unused tools
+        sudo rm -rf /opt/microsoft                #   783M
+        sudo rm -rf /usr/lib/llvm-*               #  1900M
+        sudo rm -rf /usr/local/julia*             #  1008M
+        sudo rm -rf /usr/local/share/chromium     #   613M
+        sudo rm -rf /usr/local/share/powershell   #  1244M
+        sudo rm -rf /usr/share/swift              #  3207M
+        sudo df -TBG /
+      
       ## R is already included in the Bioconductor docker images
       - name: Setup R from r-lib
         if: runner.os != 'Linux'

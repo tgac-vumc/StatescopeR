@@ -126,6 +126,12 @@ jobs:
 
       ## Remove unnecessary files according to:
       # https://github.com/endersonmenezes/free-disk-space
+
+      - name: Export env variables for Free Disk Space (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          export AGENT_TOOLSDIRECTORY=/usr/local/bin
+          
       - name: Free Disk Space (Ubuntu)
         if: runner.os == 'Linux'
         uses: endersonmenezes/free-disk-space@v3

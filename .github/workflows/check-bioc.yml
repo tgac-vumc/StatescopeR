@@ -125,7 +125,7 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       ## Remove unnecessary files according to:
-      https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+      # https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
       - name: Remove unnecessary files to release disk space
         if: runner.os == 'Linux'
         run: |

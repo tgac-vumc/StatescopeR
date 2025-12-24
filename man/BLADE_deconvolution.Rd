@@ -61,41 +61,47 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     ## remove duplicate genes
     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
     ## Subset to 1 healthy and 2 type 2 diabetes samples
-    scRNAseq = scRNAseq[,scRNAseq$individual \%in\% c('H3',
-                                               'T2D1', 'T2D2')]
+    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c(
+        "H3",
+        "T2D1", "T2D2"
+    )]
     ## remove cells with no cell type label
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
     ## remove very rare cell types (<100 cells in total data set)
-    celltypes_to_remove <- names(table(scRNAseq$`cell type`)
-        [(table(scRNAseq$`cell type`) < 100)])
+    celltypes_to_remove <-
+    names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 100)])
     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` \%in\% celltypes_to_remove]
 
     ## Create pseudobulk and normalize to cp10k
     pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
-    normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
-    pseudobulk = as(pseudobulk, "SummarizedExperiment")
-    rownames(pseudobulk) = rownames(scRNAseq)
+    normcounts(pseudobulk) <- calculateCPM(pseudobulk) / 100
+    pseudobulk <- as(pseudobulk, "SummarizedExperiment")
+    rownames(pseudobulk) <- rownames(scRNAseq)
 
     ## Load signature
     load(system.file("extdata", "example_signature.RData",
-        package = "StatescopeR"))
+        package = "StatescopeR"
+    ))
 
     ## Load selected_genes
     load(system.file("extdata", "example_selected_genes.RData",
-        package = "StatescopeR"))
+        package = "StatescopeR"
+    ))
 
     ##  Load prior
     load(system.file("extdata", "example_prior.RData",
-        package = "StatescopeR"))
+        package = "StatescopeR"
+    ))
 
     ## Perform Deconvolution with BLADE
     Statescope <- BLADE_deconvolution(
         signature, pseudobulk, selected_genes,
         prior, 1L,
-        Nrep = 1L)
+        Nrep = 1L
+    )
 
     ## show estimated fractions
     S4Vectors::metadata(Statescope)$fractions
-    }
+}
 }

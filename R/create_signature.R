@@ -36,9 +36,10 @@
 #'     signature <- create_signature(scRNAseq, labels = scRNAseq$`cell type`)
 #' }
 create_signature <- function(scRNAseq, hvg_genes = FALSE, n_hvg_genes = 3000L,
-    labels) {
-    if (!is(scRNAseq, 'SingleCellExperiment')){
-        stop('scRNAseq is not a SingleCellExperiment object')}
+                                labels) {
+    if (!is(scRNAseq, "SingleCellExperiment")) {
+        stop("scRNAseq is not a SingleCellExperiment object")
+    }
     ## init Mu, Omega & Var
     mu <- DataFrame()
     omega <- DataFrame()

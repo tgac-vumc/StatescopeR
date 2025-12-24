@@ -29,14 +29,16 @@
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #'     ## Subset to 1 healthy and 2 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
-#'                                                'T2D1', 'T2D2')]
+#'     scRNAseq <- scRNAseq[, scRNAseq$individual %in% c(
+#'         "H3",
+#'         "T2D1", "T2D2"
+#'     )]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
 #'     ## remove rare cell types (<100 cells in total data set)
-#'     celltypes_to_remove <-
-#'     names(table(scRNAseq$`cell type`)[(table(scRNAseq$`cell type`) < 100)])
+#'     celltypes_to_remove <-names(table(scRNAseq$`cell type`)
+#'         [(table(scRNAseq$`cell type`) < 100)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
 #'     ## remove NA cells
@@ -44,18 +46,20 @@
 #'
 #'     ## Normalize (cp10k) and logtransform scRNAseq
 #'     cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
-#'     logcounts(scRNAseq) <- log1p(cpm(scRNAseq)/100)
+#'     logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 #'
 #'     ## Select genes by autogenes
-#'     selected_genes <- select_genes(scRNAseq, 3L, n_hvg_genes = 5L,
-#'      labels = scRNAseq$`cell type`) # 3 genes
+#'     selected_genes <- select_genes(scRNAseq, 3L,
+#'         n_hvg_genes = 5L,
+#'         labels = scRNAseq$`cell type`
+#'     ) # 3 genes
 #' }
 select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L,
     labels) {
     ## Check if scRNAseq is actually a SCE
-    if (!is(scRNAseq, 'SingleCellExperiment')){
-        stop('scRNAseq is not a SingleCellExperiment object')}
-    else if (length(labels) != ncol(scRNAseq)){
+    if (!is(scRNAseq, "SingleCellExperiment")) {
+        stop("scRNAseq is not a SingleCellExperiment object")
+    } else if (length(labels) != ncol(scRNAseq)) {
         stop("labels are not the same length as number of cells in scRNAseq")}
     ## calculate per gene variance
     dec.data <- modelGeneVar(scRNAseq, assay.type = "logcounts")
@@ -63,7 +67,8 @@ select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L,
     ## select hvg
     if (nrow(scRNAseq) < n_hvg_genes) {
         hvg_genes <- rownames(scRNAseq) ## don't select hvg_genes
-    } else {hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)}
+    } else {
+        hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)}
 
     ## init centroids df
     centroids <- data.frame(row.names = hvg_genes)
@@ -83,9 +88,10 @@ select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L,
             ## import autogenes
             ag <- reticulate::import("autogenes")
             ag$init(t(centroids))
-            if (is.na(fixed_n_features)) {ag$optimize(ngen = ngen, seed = seed,
-                    offspring_size = offspring_size, verbose = FALSE)
-                } else {ag$optimize(ngen = ngen, nfeatures = fixed_n_features,
+            if (is.na(fixed_n_features)) {
+                ag$optimize(ngen = ngen, seed = seed,
+                            offspring_size = offspring_size, verbose = FALSE)}
+            else {ag$optimize(ngen = ngen, nfeatures = fixed_n_features,
                     seed = seed,mode = "fixed", offspring_size = offspring_size,
                     verbose = FALSE)}
             index <- ag$select(index = 0L)

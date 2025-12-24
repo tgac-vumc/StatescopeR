@@ -27,8 +27,10 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     ## Load data
     scRNAseq <- scRNAseq::SegerstolpePancreasData()
     ## Subset to 1 healthy and 3 type 2 diabetes samples
-    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c("H3",
-                                                     "T2D1", "T2D2")]
+    scRNAseq <- scRNAseq[, scRNAseq$individual \%in\% c(
+        "H3",
+        "T2D1", "T2D2"
+    )]
     ## remove NA cells
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 

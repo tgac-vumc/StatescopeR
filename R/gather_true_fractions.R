@@ -20,8 +20,10 @@
 #'     ## Load data
 #'     scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'     ## Subset to 1 healthy and 3 type 2 diabetes samples
-#'     scRNAseq <- scRNAseq[, scRNAseq$individual %in% c("H3",
-#'                                                      "T2D1", "T2D2")]
+#'     scRNAseq <- scRNAseq[, scRNAseq$individual %in% c(
+#'         "H3",
+#'         "T2D1", "T2D2"
+#'     )]
 #'     ## remove NA cells
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
@@ -35,8 +37,9 @@
 #'     )
 #' }
 gather_true_fractions <- function(scRNAseq, ids, label_col) {
-    if (!is(scRNAseq, 'SingleCellExperiment')){
-        stop('scRNAseq is not a SingleCellExperiment object')}
+    if (!is(scRNAseq, "SingleCellExperiment")) {
+        stop("scRNAseq is not a SingleCellExperiment object")
+    }
     ## Init list to save fractions
     true_fractions <- list()
 
@@ -44,7 +47,8 @@ gather_true_fractions <- function(scRNAseq, ids, label_col) {
     for (sample in unique(ids)) {
         temp_scRNAseq <- scRNAseq[, ids == sample]
         temp_true_fractions <- DataFrame(table(
-            colData(temp_scRNAseq)[[label_col]])/ ncol(temp_scRNAseq))
+            colData(temp_scRNAseq)[[label_col]]
+        ) / ncol(temp_scRNAseq))
 
         ## add True_fractions of sample to list
         true_fractions[sample] <- list(temp_true_fractions$Freq)

@@ -31,3 +31,6 @@ number of samples for deconvolution for quicker vignette/examples
 ## StatescopeR 0.99.32 (10-12-2025)
 -   Adjusted to use BLADE code with pytorch (quicker version: https://github.com/tgac-vumc/Statescope/blob/master/src/BLADE_Deconvolution/BLADE.py)
 and made vignette less minimal
+
+## StatescopeR 0.99.33 (24-12-2025)
+-   Added function to fetch signatures from https://github.com/tgac-vumc/StatescopeData and did some code cleaning

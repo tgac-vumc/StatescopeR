@@ -34,38 +34,42 @@
 #'     scRNAseq <- scRNAseq[!duplicated(rownames(scRNAseq)), ]
 #'
 #'     ## Subset to 1 healthy and 2 type 2 diabetes samples
-#'     scRNAseq = scRNAseq[,scRNAseq$individual %in% c('H3',
-#'                                                'T2D1', 'T2D2')]
+#'     scRNAseq <- scRNAseq[, scRNAseq$individual %in% c(
+#'         "H3",
+#'         "T2D1", "T2D2"
+#'     )]
 #'     ## remove cells with no cell type label
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
 #'     ## remove very rare cell types (<100 cells in total data set)
-#'     celltypes_to_remove <-names(table(scRNAseq$`cell type`)
-#'         [(table(scRNAseq$`cell type`) < 100)])
+#'     celltypes_to_remove <- names(table(scRNAseq$`cell type`)
+#'     [(table(scRNAseq$`cell type`) < 100)])
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
 #'     ## Create pseudobulk and normalize to cp10k
 #'     pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
-#'     normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
-#'     pseudobulk = as(pseudobulk, "SummarizedExperiment")
-#'     rownames(pseudobulk) = rownames(scRNAseq)
+#'     normcounts(pseudobulk) <- calculateCPM(pseudobulk) / 100
+#'     pseudobulk <- as(pseudobulk, "SummarizedExperiment")
+#'     rownames(pseudobulk) <- rownames(scRNAseq)
 #'     ## Load signature
 #'     load(system.file("extdata", "example_signature.RData",
-#'         package = "StatescopeR"))
+#'         package = "StatescopeR"
+#'     ))
 #'
 #'     ## Load Deconvolved Statescope object
 #'     load(system.file("extdata", "example_Statescope_Deconvolved.RData",
-#'         package = "StatescopeR"))
+#'         package = "StatescopeR"
+#'     ))
 #'
 #'     ## Run Refinement
 #'     Statescope <- Refinement(Statescope, signature, pseudobulk, 2L)
 #'
 #'     ## Show cell type specific gene expression profile estimates
 #'     S4Vectors::metadata(Statescope)$ct_specific_gep
-#'     }
+#' }
 Refinement <- function(Statescope, signature, bulk, cores = 1L) {
-    if (!is(Statescope, 'SummarizedExperiment')){ ## Check Statescope input
-        stop('Statescope is not a SummarizedExperiment object')}
+    if (!is(Statescope, "SummarizedExperiment")) { ## Check Statescope input
+        stop("Statescope is not a SummarizedExperiment object")}
     ## Prepare Refinement input
     BLADE_obj <- list("final_obj" = metadata(Statescope)$BLADE_output[[1]],
         "outs" = metadata(Statescope)$BLADE_output[[2]])
@@ -77,7 +81,7 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
     ## start basilisk & Run Refinement
     proc <- basiliskStart(deconvolution)
     Statescope <- basiliskRun(proc, fun = function(Statescope, BLADE_obj, Mu,
-                                                    Omega, bulk_matrix, cores) {
+    Omega, bulk_matrix, cores) {
             ## import BLADE
             reticulate::source_python(system.file("python/BLADE.py",
                 package = "StatescopeR"))
@@ -101,11 +105,12 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
                 ct_specific_gep[colnames(Mu)[i]] <-
                     SummarizedExperiment::SummarizedExperiment(
                         assays = S4Vectors::SimpleList(weighted_gep =
-                                                        omega_weighted_gep_df))}
+                                omega_weighted_gep_df))
+            }
             ## Add cell type specific gene expression to Statescope obj
             S4Vectors::metadata(Statescope)$ct_specific_gep <- ct_specific_gep
             Statescope}, Statescope = Statescope, BLADE_obj = BLADE_obj,
-            Mu = Mu, Omega = Omega, bulk_matrix = bulk_matrix, cores = cores)
+        Mu = Mu, Omega = Omega, bulk_matrix = bulk_matrix, cores = cores)
     ## stop basilisk
     basiliskStop(proc)
 

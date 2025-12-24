@@ -20,13 +20,20 @@ NULL
 #'      single cell data for deconvolution and cell state analysis.
 #'  \code{\link{select_genes}} selects genes which best discriminate cell types
 #'      for use in deconvolution.
+#'  Alternatively you can also use:
+#'   \code{\link{fetch_signature}} to fetch one of the premade signatures +
+#'   selected_genes from https://github.com/tgac-vumc/StatescopeData
+#'   After these steps and proper cp10k normalization of the bulk mRNA
+#'   deconvolution and cell state analysis can be done with the following
+#'    functions:
 #'  \code{\link{BLADE_deconvolution}} estimates cell fractions from bulk mRNA.
 #'  \code{\link{Refinement}} refines cell type-specific gene expression profile
 #'      estimates to better capture inter-sample variability.
 #'  \code{\link{StateDiscovery}} discovery cell states from inferred cell
 #'  type-specific gene expression profiles.
 #'
-#'  The following functions provide some evaluation and plotting functions:
+#'  After these steps the following functions provide some evaluation
+#'      and plotting functions:
 #'  \code{\link{gather_true_fractions}} gets true cell fractions from
 #'      scRNAseq data.
 #'  \code{\link{fraction_eval}} plots the correlation of estimated vs true

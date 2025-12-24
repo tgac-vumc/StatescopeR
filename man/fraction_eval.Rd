@@ -21,11 +21,13 @@ Create a barplot of TRUE vs estimated cfs
 \examples{
 ## Load True fractions
 load(system.file("extdata", "example_true_fractions.RData",
-    package = "StatescopeR"))
+    package = "StatescopeR"
+))
 
 ## Load Deconvolved Statescope object
 load(system.file("extdata", "example_Statescope_Deconvolved.RData",
-    package = "StatescopeR"))
+    package = "StatescopeR"
+))
 
 ## ## Plot fraction correlation and RMSE per ct
 fraction_eval(Statescope, true_fractions)

@@ -19,19 +19,21 @@ NULL
 #' @importFrom methods is
 #' @export fraction_eval
 #' @examples
-#'## Load True fractions
+#' ## Load True fractions
 #' load(system.file("extdata", "example_true_fractions.RData",
-#'     package = "StatescopeR"))
+#'     package = "StatescopeR"
+#' ))
 #'
 #' ## Load Deconvolved Statescope object
 #' load(system.file("extdata", "example_Statescope_Deconvolved.RData",
-#'     package = "StatescopeR"))
+#'     package = "StatescopeR"
+#' ))
 #'
 #' ## ## Plot fraction correlation and RMSE per ct
 #' fraction_eval(Statescope, true_fractions)
 fraction_eval <- function(Statescope, true_fractions) {
-    if (!is(Statescope, 'SummarizedExperiment')){ ## Check Statescope input
-        stop('Statescope is not a SummarizedExperiment object')}
+    if (!is(Statescope, "SummarizedExperiment")) { ## Check Statescope input
+        stop("Statescope is not a SummarizedExperiment object")}
     ## measure correlation and RMSE per celltype
     eval_results <- setNames(data.frame(matrix(ncol = 3, nrow = 0)),
         c("celltype", "correlation", "RMSE"))
@@ -39,17 +41,19 @@ fraction_eval <- function(Statescope, true_fractions) {
         cor_ct <- cor(as.matrix(true_fractions)[ct, ], as.matrix(
             metadata(Statescope)$fractions)[ct, names(true_fractions)])
 
-        rmse_ct <- sqrt(mean((
-            as.matrix(metadata(Statescope)$fractions)[ct, names(true_fractions)]
+        rmse_ct <- sqrt(mean((as.matrix(
+            metadata(Statescope)$fractions)[ct, names(true_fractions)]
             - as.matrix(true_fractions)[ct, ])^2))
 
         ## add cor to cors
-        eval_results[nrow(eval_results) + 1, ] <- data.frame(
-            ct, cor_ct, rmse_ct)}
+        eval_results[nrow(eval_results) + 1, ] <-
+            data.frame(ct, cor_ct, rmse_ct)
+    }
 
     ## plot correlation per celltype
-    corplot <- ggplot(eval_results, aes(x = celltype, y = correlation,
-                                        fill = celltype)) +
+    corplot <- ggplot(eval_results, aes(
+        x = celltype, y = correlation,
+        fill = celltype)) +
         geom_bar(stat = "identity", width = 0.95) +
         theme_bw() +
         labs(x = NULL) +
@@ -96,8 +100,9 @@ fraction_eval <- function(Statescope, true_fractions) {
 #' fraction_heatmap(Statescope)
 #'
 fraction_heatmap <- function(Statescope, ...) {
-    if (!is(Statescope, 'SummarizedExperiment')){ ## Check Statescope input
-        stop('Statescope is not a SummarizedExperiment object')}
+    if (!is(Statescope, "SummarizedExperiment")) { ## Check Statescope input
+        stop("Statescope is not a SummarizedExperiment object")
+    }
     Heatmap(as.matrix(metadata(Statescope)$fractions),
         heatmap_legend_param = list(title = "")
     )
@@ -124,10 +129,11 @@ fraction_heatmap <- function(Statescope, ...) {
 #' barplot_stateloadings(Statescope, top_n = 1)
 #'
 barplot_stateloadings <- function(Statescope, top_n = 1) {
-    if (!is(Statescope, 'SummarizedExperiment')){ ## Check Statescope input
-        stop('Statescope is not a SummarizedExperiment object')}
-    else if (top_n > length(names(metadata(Statescope)$stateloadings))){
-        stop('n is bigger than number of genes')}
+    if (!is(Statescope, "SummarizedExperiment")) { ## Check Statescope input
+        stop("Statescope is not a SummarizedExperiment object")
+    } else if (top_n > length(names(metadata(Statescope)$stateloadings))) {
+        stop("n is bigger than number of genes")
+    }
     ## init df
     plot_df <- setNames(
         data.frame(matrix(ncol = 4, nrow = 0)),
@@ -165,5 +171,5 @@ barplot_stateloadings <- function(Statescope, top_n = 1) {
 utils::globalVariables(c(
     "Framework_Iterative", "Purify_AllGenes", "biggest_drop",
     "cNMF", "find_threshold", "select_k", ".",
-    'RMSE', 'celltype', 'correlation', 'gene', 'score'
+    "RMSE", "celltype", "correlation", "gene", "score"
 ))

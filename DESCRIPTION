@@ -1,7 +1,7 @@
 Package: StatescopeR
 Type: Package
 Title: StatescopeR framework for discovery of cell states from cell type-specific gene expression profiles inferred from bulk mRNA profiles
-Version: 0.99.32
+Version: 0.99.33
 Authors@R:
     c(person(given = "Mischa",
              family = "Stetketee",
@@ -11,7 +11,7 @@ Authors@R:
              person(given = 'KWF',
                     role = 'fnd'))
 Depends: R (>= 4.6.0)
-Imports: S4Vectors, SummarizedExperiment, reticulate, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot
+Imports: S4Vectors, SummarizedExperiment, reticulate, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot, utils
 Suggests: 
     BiocStyle,
     knitr,

@@ -3,8 +3,14 @@ title: "Introduction to StatescopeR"
 author: 
   - name: Mischa Steketee
     affiliation:
-    - Cancer Centre Amsterdam, Amsterdam UMC
+    - Department of Pathology, Cancer Center Amsterdam, Amsterdam UMC,
+     Vrije Universiteit Amsterdam, Amsterdam, The Netherlands
     email: m.f.b.steketee@amsterdamumc.nl
+  - name: Yongsoo Kim
+    affiliation:
+    - Department of Pathology, Cancer Center Amsterdam, Amsterdam UMC,
+     Vrije Universiteit Amsterdam, Amsterdam, The Netherlands
+    email: yo.kim@amsterdamumc.nl
 output: 
   BiocStyle::html_document:
     self_contained: yes
@@ -47,25 +53,13 @@ bib <- c(
 
 # Introduction
 
-StatescopeR is the R version of Statescope, a computational framework designed
-to discover cell states from cell type-specific gene expression profiles
-inferred from bulk RNA profiles. StatescopeR works in three steps:
-1) Multi-omic single cell RNAseq reference-based deconvolution
-2) Refinement of inferred cell type-specific gene expression profiles
-3) Cell state discovery In addition to bulk RNA and a
-single cell RNAseq (scRNAseq) reference, StatescopeR can also integrate
-prior expectations of cell fractions in the bulk RNA.
-For example tumor fractions estimated by DNA copy number analysis or
-immune cell fractions by immunohistochemistry. Below is a manual for running
-StatescopeR with some pancreas scRNAseq data used for both the reference and
-pseudobulk which is deconvolved.
+StatescopeR is an R wrapper around Statescope, a computational framework designed to discover cell states from cell type-specific gene expression profiles inferred from bulk RNAseq profiles. StatescopeR executes the three following steps consecutively: 1) Single cell RNAseq reference-based deconvolution 2) Refinement of inferred cell type-specific gene expression profiles 3) Cell state discovery. In addition to bulk RNAseq and a single cell RNAseq (scRNAseq) reference, StatescopeR can integrate prior expectations of (groups of) cell fractions in the bulk RNAseq. For example tumor fractions estimated by DNA copy number analysis or immune cell fractions by immunohistochemistry. Below is a manual for running StatescopeR with scRNAseq data from human pancreas cells used for both the reference and pseudobulk which is deconvolved.
 
 # Running StatescopeR
 
 ## Installation
 
-StatescopeR is available through Bioconductor, install it using the following
-commands in R:
+StatescopeR is available through Bioconductor. Install it using the following commands in R:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -80,15 +74,9 @@ BiocManager::valid()
 
 ## Prepare scRNAseq data
 
-After the package is installed, we will be loading it and the scRNAseq package,
-from which we will use the SegerstolpePancreas data set for our example. 
-We will use it for two purposes: 1) Creating a scRNAseq reference, as you would
-do for your own application. Note that you can also use one of the premade
-signatures from <https://github.com/tgac-vumc/StatescopeData> using the
-fetch_signature function. 
-2) Creating pseudobulk to be deconvolved, which we can conveniently use for
-evaluation as well. In your own application this would likely be bulk mRNA
-sequencing.
+After installing StatescopeR, the next step is to load it along with the scuttle and the scRNAseq packages. From the latter, the SegerstolpePancreas dataset will be used as an example. This dataset will serve two purposes: 
+1) Creating a scRNAseq reference. Alternatively, premade signatures can be obtained from <https://github.com/tgac-vumc/StatescopeData> using the fetch_signature function. 
+2) Creating pseudobulk for deconvolution, which can also be used for evaluation, as the true cell type fractions and expression are known. Usually, bulk RNA sequencing data, with unknown cell type fractions and expression, would be used for deconvolution.
 
 ```{r 'Prepare scRNAseq data'}
 ## Load StatescopeR & scRNAseq (for example data)
@@ -96,7 +84,7 @@ suppressMessages(library(StatescopeR))
 suppressMessages(library(scRNAseq))
 suppressMessages(library(scuttle))
 
-## Load SegerstolpePancreas data set
+## Load the SegerstolpePancreas data set
 scRNAseq <- SegerstolpePancreasData()
 
 ## remove duplicate genes
@@ -113,13 +101,7 @@ scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 
 ## Prepare StatescopeR input
 
-StatescopeR takes the following inputs: 1) scRNAseq reference/signature
-2) bulk mRNA to be deconvolved
-3) selected genes for deconvolution, by default this uses
-`r BiocStyle::Githubpkg("theislab/AutoGeneS")` 
-(optional) Prior expectation of fractions 
-(optional) Hyperparameters (i.e. cores for parallelization
-, nrepfinal for maximum number of optimization iteration etc.)
+StatescopeR takes the following inputs: 1) scRNAseq reference/signature 2) bulk RNAseq to be deconvolved 3) selected genes for deconvolution, by default this uses `r BiocStyle::Githubpkg("theislab/AutoGeneS")` (optional) Prior expectation of fractions. See [Group expectations](#group-expectations) for expectations of groups of cell types. (optional) Hyperparameters (i.e. cores for parallelization , nrepfinal for maximum number of optimization iterations etc.)
 
 ```{r 'Prepare StatescopeR input'}
 ## Normalize (cp10k) and logtransform scRNAseq
@@ -143,7 +125,7 @@ normcounts(pseudobulk) <- calculateCPM(pseudobulk) / 100
 pseudobulk <- as(pseudobulk, "SummarizedExperiment")
 rownames(pseudobulk) <- rownames(scRNAseq)
 
-## (optional) Create prior expectation
+## (optional) Create prior expectation for ductal cells
 prior <- gather_true_fractions(scRNAseq,
     ids = scRNAseq$individual,
     label_col = "cell type"
@@ -154,21 +136,9 @@ prior <- t(prior) # Transpose it to nSample x nCelltype
 
 ## Run StatescopeR
 
-Now that all inputs have been prepared you can deconvolve the
-(pseudo)bulk mRNA and discover transcriptional states. In short the modules work
-as follows: BLADE_deconvolution employs Bayesian variational inference,
-modelling the bulk gene expression level of each gene j in sample i by:
-\begin{equation}
+Once all input data have been prepared, the (pseudo)bulk RNAseq can be deconvolved to identify transcriptional states. In short the modules work as follows: BLADE_deconvolution employs Bayesian variational inference, modelling the bulk gene expression level of each gene j in sample i by: \begin{equation}
 y_{ij} = log(\sum_{t} f_{i}^t exp(x_{ij}^t)) + \epsilon_{ij}
-\end{equation} with hidden variables $f_{i}^t$ and $x_{ij}^t$ denoting the
-fraction of cell type t for sample i and the expression of gene j for sample i
-in cell type j respectively. Refinement further optimizes cell type-specific
-gene expression profiles, $x_{ij}^t$, by fixing estimated cell fractions and
-putting more emphasis on capturing inter-sample heterogeneity over staying
-close to the single cell prior knowledge. StateDiscovery uses convex-NMF to
-cluster inferred cell type-specific gene expression profiles in an unsupervised
-manner. These modules are wrappers around the original Python version
-`r BiocStyle::Githubpkg("tgac-vumc/Statescope")`.
+\end{equation} with hidden variables $f_{i}^t$ and $x_{ij}^t$ denoting the fraction of cell type t for sample i and the expression of gene j for sample i in cell type j respectively. Refinement further optimizes cell type-specific gene expression profiles, $x_{ij}^t$, by fixing estimated cell fractions and putting more emphasis on capturing inter-sample heterogeneity over staying close to the single cell prior knowledge. StateDiscovery uses convex-NMF to cluster inferred cell type-specific gene expression profiles in an unsupervised manner. These modules are wrappers around the original Python functions `r BiocStyle::Githubpkg("tgac-vumc/Statescope")`.
 
 ```{r 'Run StatescopeR'}
 ## Run Deconvolution module
@@ -184,8 +154,7 @@ Statescope <- StateDiscovery(Statescope, k = 2L, Ncores = 2L)
 
 ## Evaluate Statescope
 
-As we used pseudobulk from scRNAseq in this manual we are able to check if the
-output of StatescopeR is correct.
+Since pseudobulk data derived from scRNAseq are used in this manual, it is possible to verify the accuracy of the StatescopeR output.
 
 ```{r 'Evaluate Statescope'}
 ## Count fractions of cells per sample in the pseudobulk
@@ -200,9 +169,7 @@ fraction_eval(Statescope, true_fractions)
 
 ## Downstream analysis/visualizations
 
-After you have run Statescope you can do all kinds of analyses, here we show
-some visualizations to give you an idea, but feel free to try whatever comes
-to your mind.
+After running StatescopeR, a wide range of analyses can be performed. In this section, we describe how to access the results and show some examples of visualizations with them.
 
 ```{r 'Downstream analysis/visualizations'}
 ## Show predicted fractions
@@ -220,17 +187,13 @@ metadata(Statescope)$stateloadings$`ductal cell`
 ## Plot heatmap of fractions
 fraction_heatmap(Statescope)
 
-## Plot barplot of top loadings
+## Plot barplot of top state loadings
 barplot_stateloadings(Statescope)
 ```
 
 ## Group expectations
 
-If you have an expected fraction for a group of cell types instead of for one
-specific cell (i.e. Lymphoid cells instead of T/B cells), StatescopeR also
-allows you to give a group prior. Here we show an example where we know the
-expected fraction of the pancreatic islet cells (alpha, beta, gamma &
-delta cells) together, but not their individual contributions.
+When an expected fraction is available for a group of cell types rather than for individual cell types (i.e. Lymphoid cells instead of T/B cells), StatescopeR allows the use of a group prior. Here we show an example where the expected fraction of the pancreatic islet cells (alpha, beta, gamma & delta cells) together is known, but not their individual contributions.
 
 ```{r 'Group expectations'}
 ## define cell types in one group
@@ -289,9 +252,7 @@ Statescope <- BLADE_deconvolution(signature, pseudobulk, selected_genes,
 
 # Citing `StatescopeR`
 
-We hope that `r Biocpkg("StatescopeR")` will be useful for your research.
-Please use the following information to cite the package and the overall
-approach. Thank you!
+If you made use of StatescopeR for your research, please use the following information to cite the package and the underlying methodology.
 
 ```{r "citation"}
 ## Citation info
@@ -300,8 +261,7 @@ citation("StatescopeR")
 
 # Reproducibility
 
-The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])` was
-made possible thanks to:
+The `r Biocpkg("StatescopeR")` package `r Citep(bib[["StatescopeR"]])` was made possible thanks to:
 
 -   R `r Citep(bib[["R"]])`
 -   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`

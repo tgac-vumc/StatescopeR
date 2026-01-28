@@ -1,14 +1,18 @@
 Package: StatescopeR
 Type: Package
 Title: StatescopeR framework for discovery of cell states from cell type-specific gene expression profiles inferred from bulk mRNA profiles
-Version: 0.99.33
-Authors@R:
-    c(person(given = "Mischa",
-             family = "Stetketee",
-             role = c("aut", "cre"),
+Version: 0.99.34
+Authors@R:c(
+    person(given = "Mischa", family = "Steketee", role = c("aut", "cre"),
              email = "m.f.b.steketee@amsterdamumc.nl",
              comment = c(ORCID = "0000-0001-7138-7554")),
-             person(given = 'KWF',
+    person(given = "Bauke", family = "Ylstra", role = "ths",
+             email = "b.ylstra@amsterdamumc.nl",
+             comment = c(ORCID = "0000-0001-9479-3010")),
+    person(given = "Yongsoo", family = "Kim", role = "ths",
+             email = "yo.kim@amsterdamumc.nl",
+             comment = c(ORCID = "0000-0002-2995-2131")),         
+    person(given = 'KWF Kankerbestrijding',
                     role = 'fnd'))
 Depends: R (>= 4.6.0)
 Imports: S4Vectors, SummarizedExperiment, reticulate, methods, SingleCellExperiment, matrixStats, scran, basilisk, Matrix, ComplexHeatmap, ggplot2, cowplot, utils

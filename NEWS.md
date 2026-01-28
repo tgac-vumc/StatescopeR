@@ -34,3 +34,6 @@ and made vignette less minimal
 
 ## StatescopeR 0.99.33 (24-12-2025)
 -   Added function to fetch signatures from https://github.com/tgac-vumc/StatescopeData and did some code cleaning
+
+## StatescopeR 0.99.34 (28-1-2026)
+-   Adjusted vignette based on supervisor comments

@@ -233,6 +233,9 @@ for (ct in celltype_names) {
 }
 
 ## Add grouped prior fractions to prior
+true_fractions <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
+     label_col = "cell type")
+
 prior[names(true_fractions), "Group"] <- colSums(as.matrix(
     true_fractions[grouped_cts, ]
 ))

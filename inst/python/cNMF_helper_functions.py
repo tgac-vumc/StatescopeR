@@ -63,9 +63,10 @@ def cNMF(data,k,nrun,ncores,niter=1000):
         return model
     
     # perform NMF in parralel with different random seeds
-    models = Parallel(n_jobs=ncores, verbose=10)(
-        delayed(Run_cNMF)(data, k, i, niter)
-        for i in range(nrun))
+    with parallel_backend('threading', n_jobs=ncores):
+        models = Parallel(n_jobs=ncores, verbose=10)(
+            delayed(Run_cNMF)(data, k, i, niter)
+            for i in range(nrun))
     # Fetch cluster assignments, connectivity matrices and calculate the consensus matrix
     consensus_matrix = sum([connectivity(cluster_assignment(mod.H)) for mod in models]) / nrun
     # Calculate the cophenetic correlation coefficient

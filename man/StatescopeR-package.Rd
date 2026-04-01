@@ -51,11 +51,13 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Mischa Stetketee \email{m.f.b.steketee@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-7138-7554}{ORCID})
+\strong{Maintainer}: Mischa Steketee \email{m.f.b.steketee@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-7138-7554}{ORCID})
 
 Other contributors:
 \itemize{
-  \item KWF [funder]
+  \item Bauke Ylstra \email{b.ylstra@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-9479-3010}{ORCID}) [thesis advisor]
+  \item Yongsoo Kim \email{yo.kim@amsterdamumc.nl} (\href{https://orcid.org/0000-0002-2995-2131}{ORCID}) [thesis advisor]
+  \item KWF Kankerbestrijding [funder]
 }
 
 }

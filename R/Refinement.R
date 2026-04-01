@@ -79,7 +79,7 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
     bulk_matrix <- as.matrix(assay(bulk[genes, ], "normcounts"))
 
     ## start basilisk & Run Refinement
-    proc <- basiliskStart(deconvolution)
+    proc <- basiliskStart(statescope)
     Statescope <- basiliskRun(proc, fun = function(Statescope, BLADE_obj, Mu,
     Omega, bulk_matrix, cores) {
             ## import BLADE

@@ -37,3 +37,6 @@ and made vignette less minimal
 
 ## StatescopeR 0.99.34 (28-1-2026)
 -   Adjusted vignette based on supervisor comments
+
+## StatescopeR 0.99.35 (1-4-2026)
+-   Limited basilisk environments using Statescope-autogenes

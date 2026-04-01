@@ -80,7 +80,7 @@ select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L,
         centroids[ct] <- Matrix::rowMeans(logcounts(temp_scRNAseq))}
 
     ## start basilisk
-    proc <- basiliskStart(autogenes, testload = c("autogenes"))
+    proc <- basiliskStart(statescope)
 
     ## Select genes with AutoGeneS using Basilisk
     selected_genes <- basiliskRun(proc, fun = function(centroids, ngen, seed,

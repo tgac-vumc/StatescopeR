@@ -92,7 +92,7 @@ BLADE_deconvolution <- function(signature, bulk, genes, prior = NULL,
     } else if (is.list(prior)) { # do nothing if group prior
     } else {prior <- as.matrix(prior)[colnames(bulk), colnames(signature$mu)]}
     ## start basilisk
-    proc <- basiliskStart(deconvolution)
+    proc <- basiliskStart(statescope)
 
     ## Estimate fractions with BLADE using Basilisk
     Statescope <- basiliskRun(proc, fun = function(bulk, Mu, Omega, bulk_matrix,

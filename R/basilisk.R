@@ -15,7 +15,6 @@ statescope <- BasiliskEnvironment(
         "matplotlib==3.6.3",
         "seaborn==0.13.2",
         "scikit-learn==1.5.2",
-        "mkl==2025.3.0",
         "torch==2.8.0", "dill==0.3.4",
         "statescope-autogenes==1.0.4.post2",
         "psutil==7.2.2"

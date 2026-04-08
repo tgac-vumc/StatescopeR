@@ -40,3 +40,6 @@ and made vignette less minimal
 
 ## StatescopeR 0.99.35 (1-4-2026)
 -   Limited basilisk environments using Statescope-autogenes
+
+## StatescopeR 0.99.36 (8-4-2026)
+-   Removed mkl dependency for mac support and removed .bbsoptions for upcoming R universe build system

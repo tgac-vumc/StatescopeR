@@ -62,7 +62,7 @@ create_signature <- function(scRNAseq, hvg_genes = FALSE, n_hvg_genes = 3000L,
     ## Correct Omega by mean-var trend
     new_omega <- omega[, 0] ## make df with same # rows
     for (ct in colnames(omega)) {
-        trend <- fitTrendVar(mu[, ct], omega[, ct])$trend
+        trend <- scran::fitTrendVar(mu[, ct], omega[, ct])$trend
         new_omega[, ct] <- trend(mu[, ct])
     }
 

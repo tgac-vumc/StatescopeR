@@ -38,12 +38,12 @@ true_fractions <- gather_true_fractions(scRNAseq, ids = scRNAseq$individual,
 save(true_fractions, file = 'inst/extdata/example_true_fractions.RData')
 
 ## Normalize (cp10k) and logtransform scRNAseq
-cpm(scRNAseq) <- calculateCPM(scRNAseq)
+cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
 logcounts(scRNAseq) <- log1p(cpm(scRNAseq)/100)
 
 ## Create pseudobulk and normalize to cp10k (logging is done within Statescope)
-pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
-normcounts(pseudobulk) <- calculateCPM(pseudobulk)/100
+pseudobulk <- scuttle::aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
+normcounts(pseudobulk) <- scuttle::calculateCPM(pseudobulk)/100
 pseudobulk = as(pseudobulk, "SummarizedExperiment")
 rownames(pseudobulk) = rownames(scRNAseq)
 

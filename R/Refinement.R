@@ -26,7 +26,8 @@
 #' @examples
 #' if (requireNamespace("scRNAseq", quietly = TRUE)) {
 #'     library(scRNAseq)
-#'     library(scuttle)
+#'     library(scrapper)
+#'     library(edgeR)
 #'     ## Load SegerstolpePancreas data set
 #'     scRNAseq <- SegerstolpePancreasData()
 #'
@@ -47,10 +48,11 @@
 #'     scRNAseq <- scRNAseq[, !scRNAseq$`cell type` %in% celltypes_to_remove]
 #'
 #'     ## Create pseudobulk and normalize to cp10k
-#'     pseudobulk <- scuttle::aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
-#'     normcounts(pseudobulk) <- scuttle::calculateCPM(pseudobulk) / 100
-#'     pseudobulk <- as(pseudobulk, "SummarizedExperiment")
-#'     rownames(pseudobulk) <- rownames(scRNAseq)
+#'     pseudobulk <- scrapper::aggregateAcrossCells.se(scRNAseq,
+#'         factors = scRNAseq$individual)
+#'     assay(pseudobulk, 'normcounts') <- edgeR::cpm(assay(pseudobulk, 'sums')) / 100
+#'     colnames(pseudobulk) = pseudobulk$factor.1 # Assign sample names
+#'
 #'     ## Load signature
 #'     load(system.file("extdata", "example_signature.RData",
 #'         package = "StatescopeR"
@@ -102,7 +104,7 @@ Refinement <- function(Statescope, signature, bulk, cores = 1L) {
                 colnames(omega_weighted_gep_df) <- colnames(bulk_matrix)
                 rownames(omega_weighted_gep_df) <- rownames(bulk_matrix)
                 ## add to ct_specific_gep list
-                ct_specific_gep[colnames(Mu)[i]] <-
+                ct_specific_gep[[colnames(Mu)[i]]] <-
                     SummarizedExperiment::SummarizedExperiment(
                         assays = S4Vectors::SimpleList(weighted_gep =
                                 omega_weighted_gep_df))

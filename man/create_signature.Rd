@@ -27,7 +27,7 @@ Omega (variance corrected std.dev per gene per cell type)
 \examples{
 if (requireNamespace("scRNAseq", quietly = TRUE)) {
     library(scRNAseq)
-    library(scuttle)
+    library(edgeR)
     ## Load scRNaseq
     scRNAseq <- scRNAseq::SegerstolpePancreasData()
 
@@ -35,7 +35,7 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
     ## Normalize (cp10k) and logtransform scRNAseq
-    cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+    cpm(scRNAseq) <- edgeR::cpm(scRNAseq)
     SingleCellExperiment::logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 
     ## Create signature

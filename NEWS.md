@@ -43,4 +43,7 @@ and made vignette less minimal
 -   Bioconductor release!
 
 ## StatescopeR 1.0.1 (20-5-2026)
--   Deprecation warning of aggregrateAcrossCells and fitTrendVar  fix
+-   Deprecation warning of aggregrateAcrossCells and fitTrendVar fix
+
+## StatescopeR 1.0.2 (14-10-2026)
+-   Actual deprecation warning of aggregrateAcrossCells and fitTrendVar fix & citation update to published manuscript

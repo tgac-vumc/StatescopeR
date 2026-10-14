@@ -12,7 +12,7 @@
 #'
 #' @return SimpleList DataFrames for Mu (mean per gene per cell type) and
 #' Omega (variance corrected std.dev per gene per cell type)
-#' @import scran
+#' @import scrapper
 #' @importFrom matrixStats rowSds rowVars
 #' @importFrom SingleCellExperiment logcounts<- logcounts
 #' @importFrom methods is
@@ -21,7 +21,7 @@
 #' @examples
 #' if (requireNamespace("scRNAseq", quietly = TRUE)) {
 #'     library(scRNAseq)
-#'     library(scuttle)
+#'     library(edgeR)
 #'     ## Load scRNaseq
 #'     scRNAseq <- scRNAseq::SegerstolpePancreasData()
 #'
@@ -29,7 +29,7 @@
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
 #'     ## Normalize (cp10k) and logtransform scRNAseq
-#'     cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+#'     cpm(scRNAseq) <- edgeR::cpm(scRNAseq)
 #'     SingleCellExperiment::logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 #'
 #'     ## Create signature
@@ -62,17 +62,18 @@ create_signature <- function(scRNAseq, hvg_genes = FALSE, n_hvg_genes = 3000L,
     ## Correct Omega by mean-var trend
     new_omega <- omega[, 0] ## make df with same # rows
     for (ct in colnames(omega)) {
-        trend <- scran::fitTrendVar(mu[, ct], omega[, ct])$trend
-        new_omega[, ct] <- trend(mu[, ct])
+        fit <- fitVarianceTrend(mu[, ct], omega[, ct])
+        new_omega[, ct] <- fit$fitted
     }
 
     ## subset on hvg_genes if true
     if (hvg_genes) {
         ## calculate per gene variance
-        dec.data <- modelGeneVar(scRNAseq, assay.type = "logcounts")
+        dec.data <- modelGeneVariances(assay(scRNAseq,'logcounts'))
 
         ## select hvg
-        hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)
+        hvg_genes <- chooseHighlyVariableGenes(
+            dec.data$statistics[['residuals']], top = n_hvg_genes)
 
         ## subset mu and omega
         mu <- mu[hvg_genes, ]

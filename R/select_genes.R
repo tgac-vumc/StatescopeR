@@ -12,7 +12,7 @@
 #' @param labels character vector with cell type labels
 #'
 #' @return Vector of genes to use for deconvolution
-#' @import scran basilisk reticulate
+#' @import scrapper basilisk reticulate
 #' @importFrom Matrix rowMeans
 #' @importFrom methods is
 #' @importFrom SingleCellExperiment logcounts<- logcounts
@@ -21,7 +21,7 @@
 #' @examples
 #' if (requireNamespace("scRNAseq", quietly = TRUE)) {
 #'     library(scRNAseq)
-#'     library(scuttle)
+#'     library(edgeR)
 #'     ## Load SegerstolpePancreas data set
 #'     scRNAseq <- SegerstolpePancreasData()
 #'
@@ -45,7 +45,7 @@
 #'     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 #'
 #'     ## Normalize (cp10k) and logtransform scRNAseq
-#'     cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+#'     cpm(scRNAseq) <- edgeR::cpm(scRNAseq)
 #'     logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 #'
 #'     ## Select genes by autogenes
@@ -62,14 +62,16 @@ select_genes <- function(scRNAseq, fixed_n_features = NA, n_hvg_genes = 3000L,
     } else if (length(labels) != ncol(scRNAseq)) {
         stop("labels are not the same length as number of cells in scRNAseq")}
     ## calculate per gene variance
-    dec.data <- modelGeneVar(scRNAseq, assay.type = "logcounts")
+    dec.data <- modelGeneVariances(assay(scRNAseq,'logcounts'))
 
     ## select hvg
     if (nrow(scRNAseq) < n_hvg_genes) {
         hvg_genes <- rownames(scRNAseq) ## don't select hvg_genes
     } else {
-        hvg_genes <- getTopHVGs(dec.data, n = n_hvg_genes)}
-
+        hvg_genes_indices <- chooseHighlyVariableGenes(
+            dec.data$statistics[['residuals']], top = n_hvg_genes)
+        hvg_genes = rownames(scRNAseq)[hvg_genes_indices]
+    }
     ## init centroids df
     centroids <- data.frame(row.names = hvg_genes)
     ## Calculate centroids for each celltype

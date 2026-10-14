@@ -27,7 +27,7 @@ Vector of genes to use for deconvolution
 \examples{
 if (requireNamespace("scRNAseq", quietly = TRUE)) {
     library(scRNAseq)
-    library(scuttle)
+    library(edgeR)
     ## Load SegerstolpePancreas data set
     scRNAseq <- SegerstolpePancreasData()
 
@@ -51,7 +51,7 @@ if (requireNamespace("scRNAseq", quietly = TRUE)) {
     scRNAseq <- scRNAseq[, !is.na(scRNAseq$`cell type`)]
 
     ## Normalize (cp10k) and logtransform scRNAseq
-    cpm(scRNAseq) <- scuttle::calculateCPM(scRNAseq)
+    cpm(scRNAseq) <- edgeR::cpm(scRNAseq)
     logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 
     ## Select genes by autogenes

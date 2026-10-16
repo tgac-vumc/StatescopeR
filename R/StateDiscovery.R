@@ -68,8 +68,8 @@ StateDiscovery <- function(Statescope, k = NA, max_clusters = 10L, n_iter = 10L,
             rownames(final_W) <- rownames(
                 S4Vectors::metadata(Statescope)$ct_specific_gep[[1]])
             ## Add result to ct lists
-            statescores[ct] <- final_H_norm
-            stateloadings[ct] <- final_W}
+            statescores[[ct]] <- final_H_norm
+            stateloadings[[ct]] <- final_W}
         ## Add statescores to Statescope obj
         S4Vectors::metadata(Statescope)$statescores <- statescores
         S4Vectors::metadata(Statescope)$stateloadings <- stateloadings

@@ -43,3 +43,15 @@ and made vignette less minimal
 
 ## StatescopeR 0.99.36 (8-4-2026)
 -   Removed mkl dependency for mac support and removed .bbsoptions for upcoming R universe build system
+
+## StatescopeR 1.0.0 & 1.1.0 (28-4-2026)
+-   Bioconductor release!
+
+## StatescopeR 1.0.1 (20-5-2026)
+-   Deprecation warning of aggregrateAcrossCells and fitTrendVar fix
+
+## StatescopeR 1.0.2 (14-10-2026)
+-   Actual deprecation warning of aggregrateAcrossCells and fitTrendVar fix & citation update to published manuscript
+
+## StatescopeR 1.1.1 (14-10-2026)
+-   same as 1.0.2 but for dev branch actual deprecation warning of aggregrateAcrossCells and fitTrendVar fix & citation update to published manuscript

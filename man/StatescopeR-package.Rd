@@ -53,6 +53,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Mischa Steketee \email{m.f.b.steketee@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-7138-7554}{ORCID})
 
+Authors:
+\itemize{
+  \item Mischa Steketee \email{m.f.b.steketee@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-7138-7554}{ORCID})
+}
+
 Other contributors:
 \itemize{
   \item Bauke Ylstra \email{b.ylstra@amsterdamumc.nl} (\href{https://orcid.org/0000-0001-9479-3010}{ORCID}) [thesis advisor]

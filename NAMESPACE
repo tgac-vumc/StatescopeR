@@ -14,24 +14,40 @@ import(ComplexHeatmap)
 import(basilisk)
 import(ggplot2)
 import(reticulate)
-import(scran)
-importFrom(Matrix,rowMeans)
-importFrom(Matrix,rowSums)
-importFrom(S4Vectors,"metadata<-")
-importFrom(S4Vectors,DataFrame)
-importFrom(S4Vectors,SimpleList)
-importFrom(S4Vectors,metadata)
-importFrom(SingleCellExperiment,"logcounts<-")
-importFrom(SingleCellExperiment,colData)
-importFrom(SingleCellExperiment,logcounts)
-importFrom(SummarizedExperiment,SummarizedExperiment)
-importFrom(SummarizedExperiment,assay)
+import(scrapper)
+importFrom(Matrix,
+  rowMeans,
+  rowSums
+)
+importFrom(S4Vectors,
+  "metadata<-",
+  DataFrame,
+  SimpleList,
+  metadata
+)
+importFrom(SingleCellExperiment,
+  "logcounts<-",
+  colData,
+  logcounts
+)
+importFrom(SummarizedExperiment,
+  SummarizedExperiment,
+  assay
+)
 importFrom(cowplot,plot_grid)
-importFrom(matrixStats,rowSds)
-importFrom(matrixStats,rowVars)
-importFrom(methods,is)
-importFrom(methods,new)
-importFrom(stats,cor)
-importFrom(stats,setNames)
-importFrom(utils,head)
-importFrom(utils,read.table)
+importFrom(matrixStats,
+  rowSds,
+  rowVars
+)
+importFrom(methods,
+  is,
+  new
+)
+importFrom(stats,
+  cor,
+  setNames
+)
+importFrom(utils,
+  head,
+  read.table
+)

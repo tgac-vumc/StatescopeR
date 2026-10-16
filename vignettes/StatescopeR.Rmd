@@ -82,7 +82,8 @@ After installing StatescopeR, the next step is to load it along with the scuttle
 ## Load StatescopeR & scRNAseq (for example data)
 suppressMessages(library(StatescopeR))
 suppressMessages(library(scRNAseq))
-suppressMessages(library(scuttle))
+suppressMessages(library(scrapper))
+suppressMessages(library(edgeR))
 
 ## Load the SegerstolpePancreas data set
 scRNAseq <- SegerstolpePancreasData()
@@ -105,7 +106,7 @@ StatescopeR takes the following inputs: 1) scRNAseq reference/signature 2) bulk 
 
 ```{r 'Prepare StatescopeR input'}
 ## Normalize (cp10k) and logtransform scRNAseq
-cpm(scRNAseq) <- calculateCPM(scRNAseq)
+cpm(scRNAseq) <- edgeR::cpm(scRNAseq)
 logcounts(scRNAseq) <- log1p(cpm(scRNAseq) / 100)
 
 ## Create scRNAseq reference/signature with 50 hvg for quick example
@@ -120,10 +121,10 @@ selected_genes <- select_genes(scRNAseq, 30L, 50L,
 )
 
 ## Create pseudobulk and normalize to cp10k (logging is done within Statescope)
-pseudobulk <- aggregateAcrossCells(scRNAseq, ids = scRNAseq$individual)
-normcounts(pseudobulk) <- calculateCPM(pseudobulk) / 100
-pseudobulk <- as(pseudobulk, "SummarizedExperiment")
-rownames(pseudobulk) <- rownames(scRNAseq)
+pseudobulk <- scrapper::aggregateAcrossCells.se(scRNAseq,
+                                                factors = scRNAseq$individual)
+assay(pseudobulk, 'normcounts') <- edgeR::cpm(assay(pseudobulk, 'sums')) / 100
+colnames(pseudobulk) = pseudobulk$factor.1 # Assign sample names
 
 ## (optional) Create prior expectation for ductal cells
 prior <- gather_true_fractions(scRNAseq,
